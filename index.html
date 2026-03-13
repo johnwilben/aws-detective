@@ -623,13 +623,35 @@
                         ? ? ? ? ?
                     </div>
 
-                    <div class="success">
-                        <strong>🎯 MISSION ACCOMPLISHED!</strong><br><br>
-                        You've collected all 5 letters!<br><br>
-                        <strong style="color: #ff0080; font-size: 1.5em;">C - L - O - U - D - S</strong><br><br>
-                        Wait... that's 6 letters but you only collected 5?<br>
-                        The hidden message is: <strong style="color: #00ff41; font-size: 2em;">"CLOUD"</strong><br><br>
-                        <em>(The 'S' at the end stands for Services!)</em>
+                    <div class="success" id="rickrollReveal" style="display: none;">
+                        <strong style="font-size: 2em;">🎉 CONGRATULATIONS! 🎉</strong><br><br>
+                        
+                        <p style="font-size: 1.3em; margin: 20px 0;">
+                            You decoded the message!<br>
+                            But wait... there's more...
+                        </p>
+
+                        <div style="margin: 30px 0;">
+                            <img src="https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif" 
+                                 alt="Rickroll" 
+                                 style="max-width: 100%; border-radius: 10px; border: 3px solid #ff0080;">
+                        </div>
+
+                        <div style="font-size: 1.5em; margin: 20px 0; color: #ff0080;">
+                            🎵 NEVER GONNA GIVE YOU UP 🎵<br>
+                            🎵 NEVER GONNA LET YOU DOWN 🎵<br>
+                            🎵 NEVER GONNA RUN AROUND 🎵<br>
+                            🎵 AND DESERT YOU 🎵
+                        </div>
+
+                        <h2 style="color: #00ff41; font-size: 2em; margin: 30px 0;">
+                            YOU JUST GOT RICKROLLED! 😂
+                        </h2>
+
+                        <p style="font-size: 1.1em; margin: 20px 0;">
+                            But seriously though, AMAZING JOB exploring the AWS Console!<br>
+                            You've successfully learned about cloud services while getting pranked. 🎉
+                        </p>
                     </div>
 
                     <div class="console-instruction">
@@ -701,6 +723,12 @@
                         document.getElementById(`letter${index + 1}`).textContent = letter;
                     });
                     document.getElementById('secretMessage').textContent = collectedLetters.join(' ');
+                    
+                    // Show rickroll after 2 seconds
+                    setTimeout(() => {
+                        document.getElementById('rickrollReveal').style.display = 'block';
+                        document.getElementById('rickrollReveal').scrollIntoView({ behavior: 'smooth' });
+                    }, 2000);
                 }
                 
                 nextStep();
