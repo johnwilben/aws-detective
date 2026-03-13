@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Detective: The Case of the Missing Data</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Crimson+Text:wght@400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: #1a1a1a;
+            color: #d4c5a9;
+            min-height: 100vh;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.3) 2px, rgba(0,0,0,.3) 4px),
+                linear-gradient(180deg, #2c2416 0%, #1a1410 100%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 3px double #8b7355;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-family: 'Special Elite', cursive;
+            font-size: 3em;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            color: #a0826d;
+            font-style: italic;
+        }
+
+        .detective-badge {
+            display: inline-block;
+            background: radial-gradient(circle, #d4af37 0%, #8b7355 100%);
+            color: #1a1410;
+            padding: 15px 30px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 2em;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .case-file {
+            background: rgba(139, 115, 85, 0.1);
+            border: 2px solid #8b7355;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .case-file::before {
+            content: "CLASSIFIED";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            background: #8b0000;
+            color: white;
+            padding: 5px 20px;
+            font-family: 'Special Elite', cursive;
+            font-size: 0.8em;
+            letter-spacing: 3px;
+        }
+
+        .case-number {
+            font-family: 'Special Elite', cursive;
+            color: #d4af37;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .evidence {
+            background: rgba(212, 197, 169, 0.05);
+            border-left: 4px solid #d4af37;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .clue {
+            background: rgba(139, 0, 0, 0.2);
+            border: 2px dashed #8b0000;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clue:hover {
+            background: rgba(139, 0, 0, 0.3);
+            transform: scale(1.02);
+        }
+
+        .clue-title {
+            font-family: 'Special Elite', cursive;
+            color: #d4af37;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .clue-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #8b7355;
+        }
+
+        .clue.revealed .clue-content {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .suspect-card {
+            background: linear-gradient(135deg, rgba(139, 115, 85, 0.2) 0%, rgba(42, 36, 22, 0.2) 100%);
+            border: 2px solid #8b7355;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .suspect-card:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .suspect-name {
+            font-family: 'Special Elite', cursive;
+            font-size: 1.8em;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .suspect-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .interrogation {
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #8b7355;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+
+        .question {
+            font-family: 'Special Elite', cursive;
+            color: #d4af37;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .answer-option {
+            background: rgba(139, 115, 85, 0.2);
+            border: 2px solid #8b7355;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+        }
+
+        .answer-option:hover {
+            background: rgba(139, 115, 85, 0.4);
+            border-color: #d4af37;
+            transform: translateX(10px);
+        }
+
+        .answer-option.correct {
+            background: rgba(0, 100, 0, 0.3);
+            border-color: #00ff00;
+        }
+
+        .answer-option.wrong {
+            background: rgba(139, 0, 0, 0.3);
+            border-color: #ff0000;
+        }
+
+        .deduction {
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid #d4af37;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-style: italic;
+        }
+
+        .deduction::before {
+            content: "💡 DEDUCTION:";
+            display: block;
+            font-family: 'Special Elite', cursive;
+            color: #d4af37;
+            margin-bottom: 10px;
+            font-style: normal;
+        }
+
+        .magnifying-glass {
+            display: inline-block;
+            font-size: 2em;
+            animation: rotate 3s infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        .btn-investigate {
+            background: linear-gradient(135deg, #8b7355 0%, #5c4a3a 100%);
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            padding: 15px 40px;
+            font-family: 'Special Elite', cursive;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn-investigate:hover {
+            background: linear-gradient(135deg, #d4af37 0%, #8b7355 100%);
+            color: #1a1410;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .case-solved {
+            text-align: center;
+            padding: 40px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+        }
+
+        .case-solved h2 {
+            font-family: 'Special Elite', cursive;
+            font-size: 3em;
+            color: #d4af37;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .stamp {
+            display: inline-block;
+            border: 5px solid #8b0000;
+            color: #8b0000;
+            font-family: 'Special Elite', cursive;
+            font-size: 2em;
+            padding: 20px 40px;
+            transform: rotate(-15deg);
+            margin: 20px 0;
+            opacity: 0.7;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .progress {
+            background: rgba(139, 115, 85, 0.3);
+            height: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #d4af37 0%, #8b7355 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid #d4af37;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #d4af37 }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .suspect-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="detective-badge">🕵️</div>
+            <h1>AWS DETECTIVE</h1>
+            <p class="subtitle">The Case of the Missing Data</p>
+            <p style="margin-top: 20px; font-size: 1.1em;">
+                <span class="magnifying-glass">🔍</span> A Mystery Investigation
+            </p>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Case 1: Introduction -->
+        <div class="step active" data-step="1">
+            <div class="case-file">
+                <div class="case-number">CASE #001 - INTRODUCTION</div>
+                
+                <div class="evidence">
+                    <p><strong>Date:</strong> March 14, 2026</p>
+                    <p><strong>Location:</strong> AWS Cloud Headquarters</p>
+                    <p><strong>Status:</strong> URGENT</p>
+                </div>
+
+                <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
+                    Greetings, Detective. I am <strong>Inspector CloudWatch</strong>, and I need your help solving a critical case.
+                </p>
+
+                <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
+                    A major company's data has gone missing from the AWS Cloud! Your mission: investigate AWS services, gather clues, and solve the mystery of where the data went.
+                </p>
+
+                <div class="deduction">
+                    To solve this case, you must understand how AWS services work. Each suspect (AWS service) has unique characteristics. Pay attention to the clues!
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-investigate" onclick="nextCase()">BEGIN INVESTIGATION →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case 2: The Crime Scene -->
+        <div class="step" data-step="2">
+            <div class="case-file">
+                <div class="case-number">CASE #002 - THE CRIME SCENE</div>
+                
+                <div class="evidence">
+                    <p><strong>What Happened:</strong></p>
+                    <p style="margin-top: 10px;">
+                        TechCorp stored 10,000 customer photos on AWS. This morning, they couldn't find them! 
+                        The photos are critical evidence for their business.
+                    </p>
+                </div>
+
+                <div class="clue" onclick="revealClue(this)">
+                    <div class="clue-title">🔍 CLUE #1: Click to Examine</div>
+                    <div class="clue-content">
+                        <p><strong>Witness Statement:</strong></p>
+                        <p>"We uploaded the photos to something called a 'bucket'. It was supposed to store unlimited files..."</p>
+                        <p style="margin-top: 10px; color: #d4af37;">
+                            <strong>Detective's Note:</strong> A "bucket" that stores unlimited files? This narrows down our suspects!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="clue" onclick="revealClue(this)">
+                    <div class="clue-title">🔍 CLUE #2: Click to Examine</div>
+                    <div class="clue-content">
+                        <p><strong>Technical Evidence:</strong></p>
+                        <p>File types: .jpg, .png, .mp4 (photos and videos)</p>
+                        <p>Total size: 500 GB</p>
+                        <p style="margin-top: 10px; color: #d4af37;">
+                            <strong>Detective's Note:</strong> Large files... We need a service designed for file storage!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="deduction">
+                    Based on the clues, we're looking for an AWS service that:
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Stores files (photos, videos)</li>
+                        <li>Uses "buckets"</li>
+                        <li>Can handle large amounts of data</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
+                    <button class="btn-investigate" onclick="nextCase()">INTERVIEW SUSPECTS →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case 3: The Suspects -->
+        <div class="step" data-step="3">
+            <div class="case-file">
+                <div class="case-number">CASE #003 - THE SUSPECTS</div>
+                
+                <p style="font-size: 1.2em; margin-bottom: 30px;">
+                    We have 5 suspects. Each is an AWS service. Click on each to learn about them:
+                </p>
+
+                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
+                    <div class="suspect-icon">📦</div>
+                    <div class="suspect-name">SUSPECT #1: Amazon S3</div>
+                    <p><strong>Alias:</strong> "Simple Storage Service"</p>
+                    <p><strong>Known For:</strong> Storing files in "buckets"</p>
+                    <p><strong>Specialty:</strong> Can store unlimited photos, videos, and files</p>
+                    <p><strong>Motive:</strong> Designed specifically for file storage</p>
+                </div>
+
+                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
+                    <div class="suspect-icon">💻</div>
+                    <div class="suspect-name">SUSPECT #2: Amazon EC2</div>
+                    <p><strong>Alias:</strong> "Elastic Compute Cloud"</p>
+                    <p><strong>Known For:</strong> Running applications on virtual servers</p>
+                    <p><strong>Specialty:</strong> Provides computing power, not storage</p>
+                    <p><strong>Motive:</strong> Could store files, but that's not its main job</p>
+                </div>
+
+                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
+                    <div class="suspect-icon">🗄️</div>
+                    <div class="suspect-name">SUSPECT #3: Amazon RDS</div>
+                    <p><strong>Alias:</strong> "Relational Database Service"</p>
+                    <p><strong>Known For:</strong> Storing structured data (tables, rows)</p>
+                    <p><strong>Specialty:</strong> Databases like MySQL, PostgreSQL</p>
+                    <p><strong>Motive:</strong> Stores data, but not files like photos</p>
+                </div>
+
+                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
+                    <div class="suspect-icon">⚡</div>
+                    <div class="suspect-name">SUSPECT #4: AWS Lambda</div>
+                    <p><strong>Alias:</strong> "The Serverless Function"</p>
+                    <p><strong>Known For:</strong> Running code without servers</p>
+                    <p><strong>Specialty:</strong> Executes functions, doesn't store data</p>
+                    <p><strong>Motive:</strong> Could process photos, but doesn't store them</p>
+                </div>
+
+                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
+                    <div class="suspect-icon">📊</div>
+                    <div class="suspect-name">SUSPECT #5: CloudWatch</div>
+                    <p><strong>Alias:</strong> "The Monitor"</p>
+                    <p><strong>Known For:</strong> Monitoring and logging</p>
+                    <p><strong>Specialty:</strong> Tracks what's happening in AWS</p>
+                    <p><strong>Motive:</strong> Watches everything, but doesn't store files</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
+                    <button class="btn-investigate" onclick="nextCase()">INTERROGATE →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case 4: Interrogation -->
+        <div class="step" data-step="4">
+            <div class="case-file">
+                <div class="case-number">CASE #004 - INTERROGATION</div>
+                
+                <p style="font-size: 1.2em; margin-bottom: 30px;">
+                    Time to interrogate the suspects. Answer correctly to narrow down the culprit!
+                </p>
+
+                <div class="deduction">
+                    <strong>📝 REMEMBER THESE FOR THE QUIZ:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px; line-height: 2;">
+                        <li>Which service uses "buckets"?</li>
+                        <li>Which service stores files like photos?</li>
+                        <li>Which service has unlimited storage?</li>
+                    </ul>
+                    <p style="margin-top: 15px; color: #d4af37;">
+                        💡 You'll answer these questions in the MS Forms after completing the game!
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
+                    <button class="btn-investigate" onclick="nextCase()">MAKE ACCUSATION →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case 5: The Accusation -->
+        <div class="step" data-step="5">
+            <div class="case-file">
+                <div class="case-number">CASE #005 - THE ACCUSATION</div>
+                
+                <p style="font-size: 1.3em; margin-bottom: 30px;">
+                    Based on all the evidence, you now know which service stores the photos!
+                </p>
+
+                <div class="deduction">
+                    <strong>Evidence Summary:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px; line-height: 2;">
+                        <li>✓ Files stored in "buckets"</li>
+                        <li>✓ 10,000 photos (500 GB)</li>
+                        <li>✓ Unlimited storage capacity</li>
+                        <li>✓ Designed for file storage</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(212, 175, 55, 0.2); padding: 30px; border-radius: 10px; margin: 30px 0; text-align: center;">
+                    <p style="font-size: 1.3em; line-height: 1.8;">
+                        <strong>🎯 Ready to make your accusation?</strong><br><br>
+                        Click below to see the solution and complete your investigation!
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
+                    <button class="btn-investigate" onclick="nextCase()">REVEAL SOLUTION →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case 6: Case Solved -->
+        <div class="step" data-step="6">
+            <div class="case-solved">
+                <h2>🎉 CASE SOLVED! 🎉</h2>
+                
+                <div class="stamp">SOLVED</div>
+
+                <div class="case-file" style="text-align: left; margin-top: 40px;">
+                    <div class="case-number">FINAL REPORT</div>
+                    
+                    <div class="evidence">
+                        <p><strong>Culprit:</strong> Amazon S3 (Simple Storage Service)</p>
+                        <p><strong>Verdict:</strong> INNOCENT - The photos were safe all along!</p>
+                    </div>
+
+                    <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
+                        <strong>What Really Happened:</strong>
+                    </p>
+
+                    <p style="font-size: 1.1em; line-height: 1.8; margin: 20px 0;">
+                        The photos weren't missing! TechCorp simply forgot which S3 bucket they used. 
+                        Amazon S3 had been faithfully storing all 10,000 photos the entire time.
+                    </p>
+
+                    <div class="deduction">
+                        <strong>What You Learned:</strong>
+                        <ul style="margin-top: 10px; margin-left: 20px; line-height: 2;">
+                            <li>📦 <strong>Amazon S3</strong> stores files in "buckets"</li>
+                            <li>💻 <strong>Amazon EC2</strong> runs applications on virtual servers</li>
+                            <li>🗄️ <strong>Amazon RDS</strong> manages databases</li>
+                            <li>⚡ <strong>AWS Lambda</strong> runs code without servers</li>
+                            <li>📊 <strong>CloudWatch</strong> monitors AWS services</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: rgba(212, 175, 55, 0.2); padding: 20px; border-radius: 10px; margin: 30px 0;">
+                        <p style="font-size: 1.2em; text-align: center;">
+                            <strong>🏆 Investigation Complete!</strong><br><br>
+                            Now go to the <strong>MS Forms</strong> to answer the quiz questions and submit your findings!
+                        </p>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn-investigate" onclick="location.reload()">SOLVE ANOTHER CASE 🔄</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCase = 1;
+        const totalCases = 6;
+
+        function updateProgress() {
+            const progress = ((currentCase - 1) / (totalCases - 1)) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showCase(caseNum) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.querySelector(`[data-step="${caseNum}"]`).classList.add('active');
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        function nextCase() {
+            if (currentCase < totalCases) {
+                currentCase++;
+                showCase(currentCase);
+            }
+        }
+
+        function prevCase() {
+            if (currentCase > 1) {
+                currentCase--;
+                showCase(currentCase);
+            }
+        }
+
+        function revealClue(element) {
+            element.classList.add('revealed');
+        }
+
+        function checkAnswer(element, isCorrect) {
+            const options = element.parentElement.querySelectorAll('.answer-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                element.innerHTML += ' ✅ CORRECT!';
+                setTimeout(() => {
+                    alert('🎯 Excellent deduction, Detective!');
+                }, 100);
+            } else {
+                element.classList.add('wrong');
+                element.innerHTML += ' ❌ WRONG!';
+                setTimeout(() => {
+                    alert('❌ Not quite! Review the clues and try again!');
+                }, 100);
+            }
+        }
+
+        function makeAccusation(element, isCorrect) {
+            // Removed - students answer in Forms instead
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextCase();
+            if (e.key === 'ArrowLeft') prevCase();
+        });
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
