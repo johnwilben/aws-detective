@@ -351,6 +351,14 @@
                     <p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">
                         <strong style="color: #ff0080;">AGENT,</strong><br><br>
                         
+                        Before we begin, I need to know who you are.<br><br>
+                        
+                        <strong style="color: #00ff41;">ENTER YOUR NAME:</strong>
+                    </p>
+                    
+                    <input type="text" class="code-input" id="studentName" placeholder="YOUR FULL NAME" style="text-transform: none; letter-spacing: normal;">
+                    
+                    <p style="font-size: 1.1em; margin-top: 30px; line-height: 1.8;">
                         A secret message has been encrypted and hidden across AWS services. 
                         Your mission: <strong>CRACK 5 CODES</strong> by exploring the AWS Console.<br><br>
                         
@@ -369,7 +377,7 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn-hack" onclick="nextStep()">BEGIN OPERATION →</button>
+                    <button class="btn-hack" onclick="startMission()">BEGIN OPERATION →</button>
                 </div>
             </div>
 
@@ -675,6 +683,238 @@
         const totalSteps = 7;
         let collectedLetters = ['', '', '', '', ''];
         let codescracked = 0;
+        
+        // Student info
+        let studentName = '';
+        let studentCode = generateStudentCode();
+        let tabSwitches = 0;
+        let suspiciousSwitches = 0;
+        let startTime = Date.now();
+        let missionTimes = [];
+        let missionStartTime = Date.now();
+        let wrongAttempts = 0;
+        let hintsUsed = 0;
+        
+        // Question variants - 7 different sets with different hidden messages
+        const messageSets = [
+            {
+                name: "CLOUD",
+                missions: [
+                    { service: "S3", question: "Count menu items in S3 left sidebar", answer: 'C', number: 3 },
+                    { service: "EC2", question: "Count resource boxes in EC2 dashboard", answer: 'L', number: 12 },
+                    { service: "RDS", question: "Count database engine options", answer: 'O', number: 15 },
+                    { service: "Lambda", question: "Count letters in 'Lambda' word", answer: 'U', number: 21 },
+                    { service: "CloudWatch", question: "Count letters in 'CloudWatch' word", answer: 'D', number: 4 }
+                ]
+            },
+            {
+                name: "POWER",
+                missions: [
+                    { service: "S3", question: "Count letters in 'Storage' word", answer: 'P', number: 16 },
+                    { service: "EC2", question: "Count letters in 'Compute' word", answer: 'O', number: 15 },
+                    { service: "RDS", question: "Count tabs in RDS 'Create database' page", answer: 'W', number: 23 },
+                    { service: "Lambda", question: "Count letters in 'Function' word", answer: 'E', number: 5 },
+                    { service: "CloudWatch", question: "Count Alarms sub-menu items", answer: 'R', number: 18 }
+                ]
+            },
+            {
+                name: "SCALE",
+                missions: [
+                    { service: "S3", question: "Count Alarms sub-items in CloudWatch", answer: 'S', number: 19 },
+                    { service: "EC2", question: "Count letters in 'Instance' word", answer: 'C', number: 3 },
+                    { service: "RDS", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
+                    { service: "Lambda", question: "Count resource boxes in EC2", answer: 'L', number: 12 },
+                    { service: "CloudWatch", question: "Count Python versions in Lambda", answer: 'E', number: 5 }
+                ]
+            },
+            {
+                name: "SMART",
+                missions: [
+                    { service: "S3", question: "Count Alarms sub-items in CloudWatch", answer: 'S', number: 19 },
+                    { service: "EC2", question: "Count letters in 'Monitoring' word", answer: 'M', number: 13 },
+                    { service: "RDS", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
+                    { service: "Lambda", question: "Count Alarms sub-menu items", answer: 'R', number: 18 },
+                    { service: "CloudWatch", question: "Count letters in 'Metrics' word", answer: 'T', number: 20 }
+                ]
+            },
+            {
+                name: "AGILE",
+                missions: [
+                    { service: "S3", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
+                    { service: "EC2", question: "Count letters in 'Buckets' word", answer: 'G', number: 7 },
+                    { service: "RDS", question: "Count letters in 'Instance' word", answer: 'I', number: 9 },
+                    { service: "Lambda", question: "Count resource boxes in EC2", answer: 'L', number: 12 },
+                    { service: "CloudWatch", question: "Count Python versions in Lambda", answer: 'E', number: 5 }
+                ]
+            },
+            {
+                name: "SPEED",
+                missions: [
+                    { service: "S3", question: "Count Alarms sub-items in CloudWatch", answer: 'S', number: 19 },
+                    { service: "EC2", question: "Count letters in 'Compute' word", answer: 'P', number: 16 },
+                    { service: "RDS", question: "Count Python versions in Lambda", answer: 'E', number: 5 },
+                    { service: "Lambda", question: "Count Python versions in Lambda", answer: 'E', number: 5 },
+                    { service: "CloudWatch", question: "Count letters in 'Lambda' word", answer: 'D', number: 4 }
+                ]
+            },
+            {
+                name: "BRAVE",
+                missions: [
+                    { service: "S3", question: "Count letters in 'Buckets' word", answer: 'B', number: 2 },
+                    { service: "EC2", question: "Count Alarms sub-menu items", answer: 'R', number: 18 },
+                    { service: "RDS", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
+                    { service: "Lambda", question: "Count letters in 'Volumes' word", answer: 'V', number: 22 },
+                    { service: "CloudWatch", question: "Count Python versions in Lambda", answer: 'E', number: 5 }
+                ]
+            }
+        ];
+        
+        // Randomly select a message set for this student
+        const selectedSet = messageSets[Math.floor(Math.random() * messageSets.length)];
+        const hiddenMessage = selectedSet.name;
+        
+        let selectedQuestions = {
+            mission1: selectedSet.missions[0],
+            mission2: selectedSet.missions[1],
+            mission3: selectedSet.missions[2],
+            mission4: selectedSet.missions[3],
+            mission5: selectedSet.missions[4]
+        };
+        
+        // Generate unique student code
+        function generateStudentCode() {
+            return 'STU-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+        
+        // Start mission with name
+        function startMission() {
+            const nameInput = document.getElementById('studentName');
+            studentName = nameInput.value.trim();
+            
+            if (!studentName || studentName.length < 3) {
+                alert('⚠️ Please enter your full name to begin the mission!');
+                return;
+            }
+            
+            // Personalize the experience
+            alert(`Welcome, Agent ${studentName}! 🕵️\n\nYour unique mission code: ${studentCode}\n\nGood luck!`);
+            
+            // Update mission cards with selected questions
+            updateMissionQuestions();
+            
+            nextStep();
+        }
+        
+        // Update mission cards with randomized questions
+        function updateMissionQuestions() {
+            // Mission 1
+            document.querySelector('[data-step="2"] .cipher-box').innerHTML = `
+                IN AWS CONSOLE, GO TO S3 DASHBOARD<br>
+                ${selectedQuestions.mission1.question.toUpperCase()}<br>
+                CONVERT THE NUMBER TO A LETTER (1=A, 2=B, etc.)
+            `;
+            
+            // Mission 2
+            document.querySelector('[data-step="3"] .cipher-box').innerHTML = `
+                IN AWS CONSOLE, GO TO EC2 DASHBOARD<br>
+                ${selectedQuestions.mission2.question.toUpperCase()}<br>
+                CONVERT THE NUMBER TO A LETTER
+            `;
+            
+            // Mission 3
+            document.querySelector('[data-step="4"] .cipher-box').innerHTML = `
+                IN AWS CONSOLE, GO TO RDS<br>
+                ${selectedQuestions.mission3.question.toUpperCase()}<br>
+                CONVERT THE NUMBER TO A LETTER
+            `;
+            
+            // Mission 4
+            document.querySelector('[data-step="5"] .cipher-box').innerHTML = `
+                IN AWS CONSOLE, GO TO LAMBDA<br>
+                ${selectedQuestions.mission4.question.toUpperCase()}<br>
+                CONVERT THE NUMBER TO A LETTER
+            `;
+            
+            // Mission 5
+            document.querySelector('[data-step="6"] .cipher-box').innerHTML = `
+                IN AWS CONSOLE, GO TO CLOUDWATCH<br>
+                ${selectedQuestions.mission5.question.toUpperCase()}<br>
+                CONVERT THE NUMBER TO A LETTER
+            `;
+        }
+        
+        // Track tab visibility with AWS Console exception
+        let lastSwitchTime = Date.now();
+        
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                lastSwitchTime = Date.now();
+            } else {
+                // When they come back, check how long they were gone
+                const timeAway = Date.now() - lastSwitchTime;
+                
+                // If gone for more than 3 seconds, likely checking AWS Console (acceptable)
+                // If gone for less than 3 seconds, likely just switching tabs quickly (suspicious)
+                if (timeAway < 3000) {
+                    tabSwitches++;
+                    suspiciousSwitches++;
+                    console.log('⚠️ Quick tab switch detected! (Suspicious)');
+                } else {
+                    tabSwitches++;
+                    console.log('✅ Checking AWS Console (Acceptable - ' + Math.floor(timeAway/1000) + 's)');
+                }
+            }
+        });
+        
+        window.addEventListener('blur', function() {
+            lastSwitchTime = Date.now();
+        });
+        
+        window.addEventListener('focus', function() {
+            const timeAway = Date.now() - lastSwitchTime;
+            if (timeAway < 3000) {
+                tabSwitches++;
+                suspiciousSwitches++;
+            } else {
+                tabSwitches++;
+            }
+        });
+        
+        // Calculate score
+        function calculateScore(totalTime, wrongAttempts, hintsUsed, suspiciousSwitches) {
+            let score = 100;
+            
+            // Time penalty (max 30 points)
+            // Perfect time: < 5 mins (300s) = 0 penalty
+            // 5-10 mins = -10 points
+            // 10-15 mins = -20 points
+            // 15+ mins = -30 points
+            if (totalTime > 900) score -= 30;
+            else if (totalTime > 600) score -= 20;
+            else if (totalTime > 300) score -= 10;
+            
+            // Wrong attempts penalty (5 points each, max 25)
+            score -= Math.min(wrongAttempts * 5, 25);
+            
+            // Hints penalty (3 points each, max 15)
+            score -= Math.min(hintsUsed * 3, 15);
+            
+            // Suspicious tab switches penalty (5 points each, max 30)
+            score -= Math.min(suspiciousSwitches * 5, 30);
+            
+            // Ensure score doesn't go below 0
+            return Math.max(score, 0);
+        }
+        
+        // Get performance rating
+        function getPerformanceRating(score) {
+            if (score >= 95) return { rating: 'LEGENDARY', emoji: '🏆', color: '#FFD700' };
+            if (score >= 85) return { rating: 'EXCELLENT', emoji: '⭐', color: '#00ff41' };
+            if (score >= 75) return { rating: 'GREAT', emoji: '🎯', color: '#00cc33' };
+            if (score >= 65) return { rating: 'GOOD', emoji: '👍', color: '#ffbd2e' };
+            if (score >= 50) return { rating: 'FAIR', emoji: '📊', color: '#ff9900' };
+            return { rating: 'NEEDS IMPROVEMENT', emoji: '📈', color: '#ff5f56' };
+        }
 
         function updateProgress() {
             const progressBar = document.getElementById('progressBar');
@@ -686,6 +926,10 @@
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
             document.querySelector(`[data-step="${step}"]`).classList.add('active');
             window.scrollTo(0, 0);
+            
+            if (step >= 2 && step <= 6) {
+                missionStartTime = Date.now();
+            }
         }
 
         function nextStep() {
@@ -704,37 +948,150 @@
 
         function revealHint(element) {
             element.classList.add('revealed');
+            hintsUsed++;
+            console.log('💡 Hint used! Total:', hintsUsed);
         }
 
         function checkCode(missionNum, correctLetter) {
             const input = document.getElementById(`code${missionNum}`);
             const userAnswer = input.value.toUpperCase().trim();
+            
+            // Get correct answer for this student's variant
+            const missionKey = `mission${missionNum}`;
+            const correctAnswer = selectedQuestions[missionKey].answer;
+            
+            const timeTaken = Math.floor((Date.now() - missionStartTime) / 1000);
+            missionTimes.push({
+                mission: missionNum,
+                question: selectedQuestions[missionKey].question,
+                expectedNumber: selectedQuestions[missionKey].number,
+                answer: userAnswer,
+                correct: userAnswer === correctAnswer,
+                time: timeTaken,
+                attempts: 1
+            });
 
-            if (userAnswer === correctLetter) {
-                collectedLetters[missionNum - 1] = correctLetter;
+            if (userAnswer === correctAnswer) {
+                collectedLetters[missionNum - 1] = correctAnswer;
                 codescracked++;
                 updateProgress();
                 
-                alert(`✅ CORRECT! You found letter: ${correctLetter}\n\nCode ${missionNum}/5 cracked!`);
+                alert(`✅ CORRECT, Agent ${studentName}!\n\nYou found letter: ${correctAnswer}\n\nCode ${missionNum}/5 cracked!\nTime: ${timeTaken}s`);
                 
                 if (missionNum === 5) {
-                    // Show all letters
                     collectedLetters.forEach((letter, index) => {
                         document.getElementById(`letter${index + 1}`).textContent = letter;
                     });
                     document.getElementById('secretMessage').textContent = collectedLetters.join(' ');
                     
-                    // Show rickroll after 2 seconds
+                    const totalTime = Math.floor((Date.now() - startTime) / 1000);
+                    const finalScore = calculateScore(totalTime, wrongAttempts, hintsUsed, suspiciousSwitches);
+                    const performance = getPerformanceRating(finalScore);
+                    
+                    // Auto-submit stats to your endpoint
+                    submitStats({
+                        studentName: studentName,
+                        studentCode: studentCode,
+                        hiddenMessage: hiddenMessage,
+                        score: finalScore,
+                        performance: performance.rating,
+                        totalTime: totalTime,
+                        tabSwitches: tabSwitches,
+                        suspiciousSwitches: suspiciousSwitches,
+                        wrongAttempts: wrongAttempts,
+                        hintsUsed: hintsUsed,
+                        missions: missionTimes,
+                        letters: collectedLetters.join(''),
+                        timestamp: new Date().toISOString()
+                    });
+                    
                     setTimeout(() => {
                         document.getElementById('rickrollReveal').style.display = 'block';
+                        
+                        const statsDiv = document.createElement('div');
+                        statsDiv.style.cssText = 'background: rgba(0,0,0,0.8); padding: 25px; margin: 20px 0; border: 2px solid #00ff41; border-radius: 10px;';
+                        statsDiv.innerHTML = `
+                            <strong style="color: #ff0080; font-size: 1.5em;">📊 MISSION COMPLETE, AGENT ${studentName.toUpperCase()}!</strong><br><br>
+                            
+                            <div style="background: rgba(${performance.color === '#FFD700' ? '255,215,0' : '0,255,65'}, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                                <div style="font-size: 3em; margin: 10px 0;">${performance.emoji}</div>
+                                <div style="font-size: 2em; color: ${performance.color}; font-weight: bold;">
+                                    ${performance.rating}
+                                </div>
+                                <div style="font-size: 3em; color: #00ff41; margin: 15px 0; font-weight: bold;">
+                                    ${finalScore}/100
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: left; background: rgba(0,255,65,0.05); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <strong style="color: #ff0080;">📈 PERFORMANCE BREAKDOWN:</strong><br><br>
+                                
+                                <div style="margin: 10px 0;">
+                                    ⏱️ <strong>Total Time:</strong> ${Math.floor(totalTime/60)}m ${totalTime%60}s
+                                    ${totalTime < 300 ? ' <span style="color: #00ff41;">⚡ FAST!</span>' : totalTime > 900 ? ' <span style="color: #ff5f56;">⚠️ Too slow</span>' : ''}
+                                </div>
+                                
+                                <div style="margin: 10px 0;">
+                                    ❌ <strong>Wrong Attempts:</strong> ${wrongAttempts}
+                                    ${wrongAttempts === 0 ? ' <span style="color: #00ff41;">🎯 PERFECT!</span>' : wrongAttempts > 5 ? ' <span style="color: #ff5f56;">⚠️ Too many</span>' : ''}
+                                </div>
+                                
+                                <div style="margin: 10px 0;">
+                                    💡 <strong>Hints Used:</strong> ${hintsUsed}
+                                    ${hintsUsed === 0 ? ' <span style="color: #00ff41;">💪 NO HELP NEEDED!</span>' : ''}
+                                </div>
+                                
+                                <div style="margin: 10px 0;">
+                                    🔄 <strong>Tab Switches:</strong> ${tabSwitches} (${suspiciousSwitches} suspicious)
+                                    ${suspiciousSwitches === 0 ? ' <span style="color: #00ff41;">✅ FOCUSED!</span>' : suspiciousSwitches > 5 ? ' <span style="color: #ff5f56;">⚠️ Possible cheating</span>' : ''}
+                                </div>
+                                
+                                <div style="margin: 10px 0;">
+                                    🔤 <strong>Hidden Message:</strong> <span style="color: #ff0080; font-size: 1.2em;">${hiddenMessage}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="font-size: 1.2em; color: #00ff41; margin: 15px 0; letter-spacing: 3px;">
+                                CODE: ${studentCode}
+                            </div>
+                            
+                            <small style="color: #00ff41;">
+                                ✅ Your stats have been automatically submitted!
+                            </small>
+                        `;
+                        document.getElementById('rickrollReveal').appendChild(statsDiv);
                         document.getElementById('rickrollReveal').scrollIntoView({ behavior: 'smooth' });
                     }, 2000);
                 }
                 
                 nextStep();
             } else {
-                alert('❌ INCORRECT CODE!\n\nYou must explore the AWS Console to find the answer. This cannot be Googled - the clue is only visible in the actual AWS Console interface!');
+                wrongAttempts++;
+                alert(`❌ INCORRECT, Agent ${studentName}!\n\nAttempt #${wrongAttempts}\n\nYou must explore the AWS Console to find the answer. This cannot be Googled!`);
             }
+        }
+        
+        // Submit stats to Google Forms or your endpoint
+        function submitStats(data) {
+            // Option 1: Log to console (you can copy)
+            console.log('=== STUDENT STATS ===');
+            console.log(JSON.stringify(data, null, 2));
+            
+            // Option 2: Send to Google Forms (add your form URL)
+            // const formUrl = 'YOUR_GOOGLE_FORM_URL';
+            // fetch(formUrl, { method: 'POST', body: JSON.stringify(data) });
+            
+            // Option 3: Send to your server
+            // fetch('https://your-server.com/submit', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(data)
+            // });
+            
+            // Option 4: Save to localStorage (you can export later)
+            const allStats = JSON.parse(localStorage.getItem('awsCodeBreakerStats') || '[]');
+            allStats.push(data);
+            localStorage.setItem('awsCodeBreakerStats', JSON.stringify(allStats));
         }
 
         // Keyboard navigation
@@ -742,17 +1099,24 @@
             if (e.key === 'Enter') {
                 const activeInput = document.querySelector('.step.active input');
                 if (activeInput && activeInput.value) {
-                    const step = parseInt(document.querySelector('.step.active').dataset.step);
-                    if (step >= 2 && step <= 6) {
-                        const missionNum = step - 1;
-                        const correctLetters = ['C', 'L', 'O', 'D', 'S'];
-                        checkCode(missionNum, correctLetters[missionNum - 1]);
+                    if (activeInput.id === 'studentName') {
+                        startMission();
+                    } else {
+                        const step = parseInt(document.querySelector('.step.active').dataset.step);
+                        if (step >= 2 && step <= 6) {
+                            const missionNum = step - 1;
+                            checkCode(missionNum);
+                        }
                     }
                 }
             }
         });
+        
+        console.log('=== SESSION STARTED ===');
+        console.log('Student Code:', studentCode);
+        console.log('Hidden Message:', hiddenMessage);
+        console.log('Selected Questions:', selectedQuestions);
 
-        // Initialize
         updateProgress();
     </script>
 </body>
