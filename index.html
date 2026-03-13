@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS Detective: The Case of the Missing Data</title>
+    <title>AWS Code Breaker: Operation Cloud Cipher</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Crimson+Text:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Share+Tech+Mono&display=swap');
         
         * {
             margin: 0;
@@ -14,304 +14,73 @@
         }
 
         body {
-            font-family: 'Crimson Text', serif;
-            background: #1a1a1a;
-            color: #d4c5a9;
+            font-family: 'Courier Prime', monospace;
+            background: #0a0e27;
+            color: #00ff41;
             min-height: 100vh;
             background-image: 
-                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.3) 2px, rgba(0,0,0,.3) 4px),
-                linear-gradient(180deg, #2c2416 0%, #1a1410 100%);
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 65, 0.03) 2px, rgba(0, 255, 65, 0.03) 4px);
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        .header {
-            text-align: center;
-            padding: 40px 20px;
-            border-bottom: 3px double #8b7355;
-            margin-bottom: 40px;
+        .terminal-header {
+            background: #1a1f3a;
+            border: 2px solid #00ff41;
+            border-radius: 10px 10px 0 0;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .header h1 {
-            font-family: 'Special Elite', cursive;
-            font-size: 3em;
-            color: #d4af37;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
-
-        .header .subtitle {
-            font-size: 1.3em;
-            color: #a0826d;
-            font-style: italic;
-        }
-
-        .detective-badge {
-            display: inline-block;
-            background: radial-gradient(circle, #d4af37 0%, #8b7355 100%);
-            color: #1a1410;
-            padding: 15px 30px;
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            font-weight: bold;
-            font-size: 2em;
-            margin: 20px 0;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            background: #ff5f56;
         }
 
-        .case-file {
-            background: rgba(139, 115, 85, 0.1);
-            border: 2px solid #8b7355;
-            border-radius: 10px;
+        .terminal-dot:nth-child(2) { background: #ffbd2e; }
+        .terminal-dot:nth-child(3) { background: #27c93f; }
+
+        .terminal-body {
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #00ff41;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
             padding: 30px;
-            margin: 30px 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
         }
 
-        .case-file::before {
-            content: "CLASSIFIED";
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%) rotate(-2deg);
-            background: #8b0000;
-            color: white;
-            padding: 5px 20px;
-            font-family: 'Special Elite', cursive;
-            font-size: 0.8em;
-            letter-spacing: 3px;
-        }
-
-        .case-number {
-            font-family: 'Special Elite', cursive;
-            color: #d4af37;
-            font-size: 1.5em;
-            margin-bottom: 20px;
-        }
-
-        .evidence {
-            background: rgba(212, 197, 169, 0.05);
-            border-left: 4px solid #d4af37;
-            padding: 20px;
-            margin: 20px 0;
-            font-size: 1.1em;
-            line-height: 1.8;
-        }
-
-        .clue {
-            background: rgba(139, 0, 0, 0.2);
-            border: 2px dashed #8b0000;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .clue:hover {
-            background: rgba(139, 0, 0, 0.3);
-            transform: scale(1.02);
-        }
-
-        .clue-title {
-            font-family: 'Special Elite', cursive;
-            color: #d4af37;
-            font-size: 1.3em;
-            margin-bottom: 10px;
-        }
-
-        .clue-content {
-            display: none;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #8b7355;
-        }
-
-        .clue.revealed .clue-content {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .suspect-card {
-            background: linear-gradient(135deg, rgba(139, 115, 85, 0.2) 0%, rgba(42, 36, 22, 0.2) 100%);
-            border: 2px solid #8b7355;
-            padding: 25px;
-            margin: 20px 0;
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-
-        .suspect-card:hover {
-            border-color: #d4af37;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-        }
-
-        .suspect-name {
-            font-family: 'Special Elite', cursive;
-            font-size: 1.8em;
-            color: #d4af37;
-            margin-bottom: 10px;
-        }
-
-        .suspect-icon {
+        .glitch {
             font-size: 3em;
-            margin-bottom: 15px;
-        }
-
-        .interrogation {
-            background: rgba(0, 0, 0, 0.5);
-            border: 3px solid #8b7355;
-            padding: 25px;
-            margin: 25px 0;
-            border-radius: 10px;
-        }
-
-        .question {
-            font-family: 'Special Elite', cursive;
-            color: #d4af37;
-            font-size: 1.2em;
-            margin-bottom: 20px;
-        }
-
-        .answer-option {
-            background: rgba(139, 115, 85, 0.2);
-            border: 2px solid #8b7355;
-            padding: 15px 20px;
-            margin: 10px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.1em;
-        }
-
-        .answer-option:hover {
-            background: rgba(139, 115, 85, 0.4);
-            border-color: #d4af37;
-            transform: translateX(10px);
-        }
-
-        .answer-option.correct {
-            background: rgba(0, 100, 0, 0.3);
-            border-color: #00ff00;
-        }
-
-        .answer-option.wrong {
-            background: rgba(139, 0, 0, 0.3);
-            border-color: #ff0000;
-        }
-
-        .deduction {
-            background: rgba(212, 175, 55, 0.1);
-            border: 2px solid #d4af37;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            font-style: italic;
-        }
-
-        .deduction::before {
-            content: "💡 DEDUCTION:";
-            display: block;
-            font-family: 'Special Elite', cursive;
-            color: #d4af37;
-            margin-bottom: 10px;
-            font-style: normal;
-        }
-
-        .magnifying-glass {
-            display: inline-block;
-            font-size: 2em;
-            animation: rotate 3s infinite;
-        }
-
-        @keyframes rotate {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(15deg); }
-        }
-
-        .btn-investigate {
-            background: linear-gradient(135deg, #8b7355 0%, #5c4a3a 100%);
-            color: #d4af37;
-            border: 2px solid #d4af37;
-            padding: 15px 40px;
-            font-family: 'Special Elite', cursive;
-            font-size: 1.2em;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.3s;
-            margin: 10px 5px;
-        }
-
-        .btn-investigate:hover {
-            background: linear-gradient(135deg, #d4af37 0%, #8b7355 100%);
-            color: #1a1410;
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.5);
-        }
-
-        .case-solved {
+            font-weight: bold;
             text-align: center;
-            padding: 40px;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
-        }
-
-        .case-solved h2 {
-            font-family: 'Special Elite', cursive;
-            font-size: 3em;
-            color: #d4af37;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-        }
-
-        .stamp {
-            display: inline-block;
-            border: 5px solid #8b0000;
-            color: #8b0000;
-            font-family: 'Special Elite', cursive;
-            font-size: 2em;
-            padding: 20px 40px;
-            transform: rotate(-15deg);
             margin: 20px 0;
-            opacity: 0.7;
+            color: #00ff41;
+            text-shadow: 
+                0 0 10px #00ff41,
+                0 0 20px #00ff41,
+                0 0 30px #00ff41;
+            animation: glitch 2s infinite;
         }
 
-        .step {
-            display: none;
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
         }
 
-        .step.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        .progress {
-            background: rgba(139, 115, 85, 0.3);
-            height: 10px;
-            border-radius: 5px;
-            margin: 20px 0;
+        .typing {
             overflow: hidden;
-        }
-
-        .progress-bar {
-            background: linear-gradient(90deg, #d4af37 0%, #8b7355 100%);
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s;
-        }
-
-        .typewriter {
-            overflow: hidden;
-            border-right: 2px solid #d4af37;
+            border-right: 2px solid #00ff41;
             white-space: nowrap;
             animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
         }
@@ -323,282 +92,556 @@
 
         @keyframes blink-caret {
             from, to { border-color: transparent }
-            50% { border-color: #d4af37 }
+            50% { border-color: #00ff41 }
+        }
+
+        .mission-card {
+            background: rgba(26, 31, 58, 0.8);
+            border: 2px solid #00ff41;
+            border-left: 5px solid #ff0080;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .mission-card:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            transform: translateX(5px);
+        }
+
+        .mission-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #ff0080;
+            color: #0a0e27;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .cipher-box {
+            background: #000;
+            border: 2px dashed #00ff41;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3em;
+            text-align: center;
+            letter-spacing: 3px;
+            color: #ff0080;
+            text-shadow: 0 0 10px #ff0080;
+        }
+
+        .code-input {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            padding: 15px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2em;
+            width: 100%;
+            margin: 15px 0;
+            text-align: center;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        .code-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+        }
+
+        .btn-hack {
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            color: #0a0e27;
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            margin: 10px 5px;
+            text-transform: uppercase;
+        }
+
+        .btn-hack:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.8);
+        }
+
+        .btn-back {
+            background: #1a1f3a;
+            color: #00ff41;
+            border: 2px solid #00ff41;
+        }
+
+        .hint-box {
+            background: rgba(255, 0, 128, 0.1);
+            border: 2px solid #ff0080;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .hint-box:hover {
+            background: rgba(255, 0, 128, 0.2);
+        }
+
+        .hint-content {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ff0080;
+        }
+
+        .hint-box.revealed .hint-content {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .progress-bar {
+            background: rgba(26, 31, 58, 0.8);
+            height: 30px;
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00ff41 0%, #ff0080 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a0e27;
+            font-weight: bold;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .secret-message {
+            background: #000;
+            border: 3px solid #ff0080;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            font-size: 2em;
+            letter-spacing: 10px;
+            color: #ff0080;
+            text-shadow: 0 0 20px #ff0080;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .console-instruction {
+            background: rgba(0, 255, 65, 0.1);
+            border-left: 4px solid #00ff41;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .console-instruction strong {
+            color: #ff0080;
+        }
+
+        .letter-box {
+            display: inline-block;
+            background: rgba(255, 0, 128, 0.2);
+            border: 2px solid #ff0080;
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .success {
+            background: rgba(0, 255, 65, 0.2);
+            border: 2px solid #00ff41;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            color: #ff0000;
         }
 
         @media (max-width: 768px) {
-            .header h1 {
+            .glitch {
                 font-size: 2em;
             }
             
-            .suspect-card {
-                padding: 15px;
+            .cipher-box {
+                font-size: 1em;
+                letter-spacing: 1px;
+            }
+            
+            .letter-box {
+                font-size: 1.2em;
+                min-width: 40px;
+                padding: 8px 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="detective-badge">🕵️</div>
-            <h1>AWS DETECTIVE</h1>
-            <p class="subtitle">The Case of the Missing Data</p>
-            <p style="margin-top: 20px; font-size: 1.1em;">
-                <span class="magnifying-glass">🔍</span> A Mystery Investigation
-            </p>
+        <div class="terminal-header">
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+            <span style="margin-left: 10px; color: #00ff41;">CLASSIFIED_TERMINAL.exe</span>
         </div>
 
-        <div class="progress">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-        <!-- Case 1: Introduction -->
-        <div class="step active" data-step="1">
-            <div class="case-file">
-                <div class="case-number">CASE #001 - INTRODUCTION</div>
-                
-                <div class="evidence">
-                    <p><strong>Date:</strong> March 14, 2026</p>
-                    <p><strong>Location:</strong> AWS Cloud Headquarters</p>
-                    <p><strong>Status:</strong> URGENT</p>
-                </div>
-
-                <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
-                    Greetings, Detective. I am <strong>Inspector CloudWatch</strong>, and I need your help solving a critical case.
-                </p>
-
-                <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
-                    A major company's data has gone missing from the AWS Cloud! Your mission: investigate AWS services, gather clues, and solve the mystery of where the data went.
-                </p>
-
-                <div class="deduction">
-                    To solve this case, you must understand how AWS services work. Each suspect (AWS service) has unique characteristics. Pay attention to the clues!
-                </div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn-investigate" onclick="nextCase()">BEGIN INVESTIGATION →</button>
-                </div>
+        <div class="terminal-body">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar">0/5 CODES CRACKED</div>
             </div>
-        </div>
 
-        <!-- Case 2: The Crime Scene -->
-        <div class="step" data-step="2">
-            <div class="case-file">
-                <div class="case-number">CASE #002 - THE CRIME SCENE</div>
+            <!-- Step 1: Introduction -->
+            <div class="step active" data-step="1">
+                <div class="glitch">⚡ OPERATION CLOUD CIPHER ⚡</div>
                 
-                <div class="evidence">
-                    <p><strong>What Happened:</strong></p>
-                    <p style="margin-top: 10px;">
-                        TechCorp stored 10,000 customer photos on AWS. This morning, they couldn't find them! 
-                        The photos are critical evidence for their business.
+                <p style="font-size: 1.3em; line-height: 1.8; margin: 30px 0; text-align: center;">
+                    > INCOMING TRANSMISSION...<br>
+                    > DECRYPTING...<br>
+                    > ACCESS GRANTED
+                </p>
+
+                <div class="mission-card">
+                    <div class="mission-number">CLASSIFIED</div>
+                    <p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">
+                        <strong style="color: #ff0080;">AGENT,</strong><br><br>
+                        
+                        A secret message has been encrypted and hidden across AWS services. 
+                        Your mission: <strong>CRACK 5 CODES</strong> by exploring the AWS Console.<br><br>
+                        
+                        Each AWS service holds a <strong style="color: #ff0080;">SECRET LETTER</strong>. 
+                        Find all 5 letters to reveal the hidden message!
                     </p>
                 </div>
 
-                <div class="clue" onclick="revealClue(this)">
-                    <div class="clue-title">🔍 CLUE #1: Click to Examine</div>
-                    <div class="clue-content">
-                        <p><strong>Witness Statement:</strong></p>
-                        <p>"We uploaded the photos to something called a 'bucket'. It was supposed to store unlimited files..."</p>
-                        <p style="margin-top: 10px; color: #d4af37;">
-                            <strong>Detective's Note:</strong> A "bucket" that stores unlimited files? This narrows down our suspects!
-                        </p>
-                    </div>
-                </div>
-
-                <div class="clue" onclick="revealClue(this)">
-                    <div class="clue-title">🔍 CLUE #2: Click to Examine</div>
-                    <div class="clue-content">
-                        <p><strong>Technical Evidence:</strong></p>
-                        <p>File types: .jpg, .png, .mp4 (photos and videos)</p>
-                        <p>Total size: 500 GB</p>
-                        <p style="margin-top: 10px; color: #d4af37;">
-                            <strong>Detective's Note:</strong> Large files... We need a service designed for file storage!
-                        </p>
-                    </div>
-                </div>
-
-                <div class="deduction">
-                    Based on the clues, we're looking for an AWS service that:
-                    <ul style="margin-top: 10px; margin-left: 20px;">
-                        <li>Stores files (photos, videos)</li>
-                        <li>Uses "buckets"</li>
-                        <li>Can handle large amounts of data</li>
-                    </ul>
+                <div class="console-instruction">
+                    <strong>🎯 YOUR MISSION:</strong><br>
+                    1. Navigate to each AWS service in the Console<br>
+                    2. Find the clue hidden in the service<br>
+                    3. Crack the code to get a letter<br>
+                    4. Collect all 5 letters<br>
+                    5. Decode the final secret message!
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
-                    <button class="btn-investigate" onclick="nextCase()">INTERVIEW SUSPECTS →</button>
+                    <button class="btn-hack" onclick="nextStep()">BEGIN OPERATION →</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Case 3: The Suspects -->
-        <div class="step" data-step="3">
-            <div class="case-file">
-                <div class="case-number">CASE #003 - THE SUSPECTS</div>
-                
-                <p style="font-size: 1.2em; margin-bottom: 30px;">
-                    We have 5 suspects. Each is an AWS service. Click on each to learn about them:
-                </p>
-
-                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
-                    <div class="suspect-icon">📦</div>
-                    <div class="suspect-name">SUSPECT #1: Amazon S3</div>
-                    <p><strong>Alias:</strong> "Simple Storage Service"</p>
-                    <p><strong>Known For:</strong> Storing files in "buckets"</p>
-                    <p><strong>Specialty:</strong> Can store unlimited photos, videos, and files</p>
-                    <p><strong>Motive:</strong> Designed specifically for file storage</p>
-                </div>
-
-                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
-                    <div class="suspect-icon">💻</div>
-                    <div class="suspect-name">SUSPECT #2: Amazon EC2</div>
-                    <p><strong>Alias:</strong> "Elastic Compute Cloud"</p>
-                    <p><strong>Known For:</strong> Running applications on virtual servers</p>
-                    <p><strong>Specialty:</strong> Provides computing power, not storage</p>
-                    <p><strong>Motive:</strong> Could store files, but that's not its main job</p>
-                </div>
-
-                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
-                    <div class="suspect-icon">🗄️</div>
-                    <div class="suspect-name">SUSPECT #3: Amazon RDS</div>
-                    <p><strong>Alias:</strong> "Relational Database Service"</p>
-                    <p><strong>Known For:</strong> Storing structured data (tables, rows)</p>
-                    <p><strong>Specialty:</strong> Databases like MySQL, PostgreSQL</p>
-                    <p><strong>Motive:</strong> Stores data, but not files like photos</p>
-                </div>
-
-                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
-                    <div class="suspect-icon">⚡</div>
-                    <div class="suspect-name">SUSPECT #4: AWS Lambda</div>
-                    <p><strong>Alias:</strong> "The Serverless Function"</p>
-                    <p><strong>Known For:</strong> Running code without servers</p>
-                    <p><strong>Specialty:</strong> Executes functions, doesn't store data</p>
-                    <p><strong>Motive:</strong> Could process photos, but doesn't store them</p>
-                </div>
-
-                <div class="suspect-card" onclick="this.style.background='rgba(139, 115, 85, 0.3)'">
-                    <div class="suspect-icon">📊</div>
-                    <div class="suspect-name">SUSPECT #5: CloudWatch</div>
-                    <p><strong>Alias:</strong> "The Monitor"</p>
-                    <p><strong>Known For:</strong> Monitoring and logging</p>
-                    <p><strong>Specialty:</strong> Tracks what's happening in AWS</p>
-                    <p><strong>Motive:</strong> Watches everything, but doesn't store files</p>
-                </div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
-                    <button class="btn-investigate" onclick="nextCase()">INTERROGATE →</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Case 4: Interrogation -->
-        <div class="step" data-step="4">
-            <div class="case-file">
-                <div class="case-number">CASE #004 - INTERROGATION</div>
-                
-                <p style="font-size: 1.2em; margin-bottom: 30px;">
-                    Time to interrogate the suspects. Answer correctly to narrow down the culprit!
-                </p>
-
-                <div class="deduction">
-                    <strong>📝 REMEMBER THESE FOR THE QUIZ:</strong>
-                    <ul style="margin-top: 10px; margin-left: 20px; line-height: 2;">
-                        <li>Which service uses "buckets"?</li>
-                        <li>Which service stores files like photos?</li>
-                        <li>Which service has unlimited storage?</li>
-                    </ul>
-                    <p style="margin-top: 15px; color: #d4af37;">
-                        💡 You'll answer these questions in the MS Forms after completing the game!
-                    </p>
-                </div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
-                    <button class="btn-investigate" onclick="nextCase()">MAKE ACCUSATION →</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Case 5: The Accusation -->
-        <div class="step" data-step="5">
-            <div class="case-file">
-                <div class="case-number">CASE #005 - THE ACCUSATION</div>
-                
-                <p style="font-size: 1.3em; margin-bottom: 30px;">
-                    Based on all the evidence, you now know which service stores the photos!
-                </p>
-
-                <div class="deduction">
-                    <strong>Evidence Summary:</strong>
-                    <ul style="margin-top: 10px; margin-left: 20px; line-height: 2;">
-                        <li>✓ Files stored in "buckets"</li>
-                        <li>✓ 10,000 photos (500 GB)</li>
-                        <li>✓ Unlimited storage capacity</li>
-                        <li>✓ Designed for file storage</li>
-                    </ul>
-                </div>
-
-                <div style="background: rgba(212, 175, 55, 0.2); padding: 30px; border-radius: 10px; margin: 30px 0; text-align: center;">
-                    <p style="font-size: 1.3em; line-height: 1.8;">
-                        <strong>🎯 Ready to make your accusation?</strong><br><br>
-                        Click below to see the solution and complete your investigation!
-                    </p>
-                </div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn-investigate" onclick="prevCase()">← BACK</button>
-                    <button class="btn-investigate" onclick="nextCase()">REVEAL SOLUTION →</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Case 6: Case Solved -->
-        <div class="step" data-step="6">
-            <div class="case-solved">
-                <h2>🎉 CASE SOLVED! 🎉</h2>
-                
-                <div class="stamp">SOLVED</div>
-
-                <div class="case-file" style="text-align: left; margin-top: 40px;">
-                    <div class="case-number">FINAL REPORT</div>
+            <!-- Step 2: Mission 1 - S3 -->
+            <div class="step" data-step="2">
+                <div class="mission-card">
+                    <div class="mission-number">MISSION 1/5</div>
+                    <h2 style="color: #ff0080; margin: 20px 0;">🔐 CODE NAME: BUCKET</h2>
                     
-                    <div class="evidence">
-                        <p><strong>Culprit:</strong> Amazon S3 (Simple Storage Service)</p>
-                        <p><strong>Verdict:</strong> INNOCENT - The photos were safe all along!</p>
+                    <div class="console-instruction">
+                        <strong>📍 NAVIGATE TO:</strong> Amazon S3 in AWS Console<br>
+                        <strong>🔍 YOUR TASK:</strong> Find the answer to crack the code
                     </div>
 
-                    <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
-                        <strong>What Really Happened:</strong>
+                    <p style="font-size: 1.2em; margin: 20px 0;">
+                        <strong style="color: #00ff41;">ENCRYPTED QUESTION:</strong>
                     </p>
 
-                    <p style="font-size: 1.1em; line-height: 1.8; margin: 20px 0;">
-                        The photos weren't missing! TechCorp simply forgot which S3 bucket they used. 
-                        Amazon S3 had been faithfully storing all 10,000 photos the entire time.
-                    </p>
-
-                    <div class="deduction">
-                        <strong>What You Learned:</strong>
-                        <ul style="margin-top: 10px; margin-left: 20px; line-height: 2;">
-                            <li>📦 <strong>Amazon S3</strong> stores files in "buckets"</li>
-                            <li>💻 <strong>Amazon EC2</strong> runs applications on virtual servers</li>
-                            <li>🗄️ <strong>Amazon RDS</strong> manages databases</li>
-                            <li>⚡ <strong>AWS Lambda</strong> runs code without servers</li>
-                            <li>📊 <strong>CloudWatch</strong> monitors AWS services</li>
-                        </ul>
+                    <div class="cipher-box">
+                        IN AWS CONSOLE, GO TO S3 DASHBOARD<br>
+                        LOOK AT THE LEFT SIDEBAR MENU<br>
+                        COUNT THE NUMBER OF MENU ITEMS<br>
+                        (From "Buckets" to "Storage Lens")
                     </div>
 
-                    <div style="background: rgba(212, 175, 55, 0.2); padding: 20px; border-radius: 10px; margin: 30px 0;">
-                        <p style="font-size: 1.2em; text-align: center;">
-                            <strong>🏆 Investigation Complete!</strong><br><br>
-                            Now go to the <strong>MS Forms</strong> to answer the quiz questions and submit your findings!
-                        </p>
+                    <div class="hint-box" onclick="revealHint(this)">
+                        <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
+                        <div class="hint-content">
+                            Go to AWS Console → S3 → Look at the LEFT sidebar.<br>
+                            Count all the menu items from top to bottom.<br>
+                            The number you get = position in alphabet (1=A, 2=B, 3=C...)
+                        </div>
+                    </div>
+
+                    <p style="margin: 20px 0;">
+                        <strong>🔓 CRACK THE CODE:</strong><br>
+                        Convert the number to a letter (1=A, 2=B, 3=C, etc.)<br>
+                        Example: If you count 3 items, your letter is C
+                    </p>
+
+                    <input type="text" class="code-input" id="code1" maxlength="1" placeholder="ENTER LETTER">
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-hack btn-back" onclick="prevStep()">← BACK</button>
+                        <button class="btn-hack" onclick="checkCode(1, 'C')">SUBMIT CODE →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Mission 2 - EC2 -->
+            <div class="step" data-step="3">
+                <div class="mission-card">
+                    <div class="mission-number">MISSION 2/5</div>
+                    <h2 style="color: #ff0080; margin: 20px 0;">🔐 CODE NAME: COMPUTE</h2>
+                    
+                    <div class="console-instruction">
+                        <strong>📍 NAVIGATE TO:</strong> Amazon EC2 in AWS Console<br>
+                        <strong>🔍 YOUR TASK:</strong> Explore instance types
+                    </div>
+
+                    <p style="font-size: 1.2em; margin: 20px 0;">
+                        <strong style="color: #00ff41;">ENCRYPTED QUESTION:</strong>
+                    </p>
+
+                    <div class="cipher-box">
+                        IN AWS CONSOLE, GO TO EC2 DASHBOARD<br>
+                        LOOK AT "RESOURCES" SECTION<br>
+                        HOW MANY RESOURCE TYPES ARE SHOWN?<br>
+                        (Count the boxes: Instances, Volumes, etc.)
+                    </div>
+
+                    <div class="hint-box" onclick="revealHint(this)">
+                        <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
+                        <div class="hint-content">
+                            Go to EC2 Dashboard → Look at the "Resources" section at the top.<br>
+                            Count all the resource boxes displayed.<br>
+                            Convert that number to a letter (1=A, 2=B, 12=L, etc.)
+                        </div>
+                    </div>
+
+                    <p style="margin: 20px 0;">
+                        <strong>🔓 CRACK THE CODE:</strong><br>
+                        Convert the number to a letter (1=A, 2=B, 3=C, etc.)
+                    </p>
+
+                    <input type="text" class="code-input" id="code2" maxlength="1" placeholder="ENTER LETTER">
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-hack btn-back" onclick="prevStep()">← BACK</button>
+                        <button class="btn-hack" onclick="checkCode(2, 'L')">SUBMIT CODE →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Mission 3 - RDS -->
+            <div class="step" data-step="4">
+                <div class="mission-card">
+                    <div class="mission-number">MISSION 3/5</div>
+                    <h2 style="color: #ff0080; margin: 20px 0;">🔐 CODE NAME: DATABASE</h2>
+                    
+                    <div class="console-instruction">
+                        <strong>📍 NAVIGATE TO:</strong> Amazon RDS in AWS Console<br>
+                        <strong>🔍 YOUR TASK:</strong> Find database engines
+                    </div>
+
+                    <p style="font-size: 1.2em; margin: 20px 0;">
+                        <strong style="color: #00ff41;">ENCRYPTED QUESTION:</strong>
+                    </p>
+
+                    <div class="cipher-box">
+                        IN AWS CONSOLE, GO TO RDS<br>
+                        CLICK "CREATE DATABASE"<br>
+                        COUNT THE DATABASE ENGINE OPTIONS<br>
+                        (MySQL, PostgreSQL, etc.)
+                    </div>
+
+                    <div class="hint-box" onclick="revealHint(this)">
+                        <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
+                        <div class="hint-content">
+                            Go to RDS → Click "Create database" → Look at "Engine options".<br>
+                            Count all the database engines available.<br>
+                            Convert that number to a letter.
+                        </div>
+                    </div>
+
+                    <p style="margin: 20px 0;">
+                        <strong>🔓 CRACK THE CODE:</strong><br>
+                        Convert the number to a letter (1=A, 2=B, 15=O, etc.)
+                    </p>
+
+                    <input type="text" class="code-input" id="code3" maxlength="1" placeholder="ENTER LETTER">
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-hack btn-back" onclick="prevStep()">← BACK</button>
+                        <button class="btn-hack" onclick="checkCode(3, 'O')">SUBMIT CODE →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Mission 4 - Lambda -->
+            <div class="step" data-step="5">
+                <div class="mission-card">
+                    <div class="mission-number">MISSION 4/5</div>
+                    <h2 style="color: #ff0080; margin: 20px 0;">🔐 CODE NAME: SERVERLESS</h2>
+                    
+                    <div class="console-instruction">
+                        <strong>📍 NAVIGATE TO:</strong> AWS Lambda in AWS Console<br>
+                        <strong>🔍 YOUR TASK:</strong> Find supported runtimes
+                    </div>
+
+                    <p style="font-size: 1.2em; margin: 20px 0;">
+                        <strong style="color: #00ff41;">ENCRYPTED QUESTION:</strong>
+                    </p>
+
+                    <div class="cipher-box">
+                        IN AWS CONSOLE, GO TO LAMBDA<br>
+                        CLICK "CREATE FUNCTION"<br>
+                        LOOK AT "RUNTIME" DROPDOWN<br>
+                        COUNT HOW MANY PYTHON VERSIONS ARE AVAILABLE
+                    </div>
+
+                    <div class="hint-box" onclick="revealHint(this)">
+                        <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
+                        <div class="hint-content">
+                            Go to Lambda → Click "Create function" → Click Runtime dropdown.<br>
+                            Count only the Python versions (Python 3.x).<br>
+                            Convert that number to a letter (4=D, 21=U, etc.)
+                        </div>
+                    </div>
+
+                    <p style="margin: 20px 0;">
+                        <strong>🔓 CRACK THE CODE:</strong><br>
+                        Convert the number to a letter (1=A, 4=D, 21=U, etc.)
+                    </p>
+
+                    <input type="text" class="code-input" id="code4" maxlength="1" placeholder="ENTER LETTER">
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-hack btn-back" onclick="prevStep()">← BACK</button>
+                        <button class="btn-hack" onclick="checkCode(4, 'D')">SUBMIT CODE →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Mission 5 - CloudWatch -->
+            <div class="step" data-step="6">
+                <div class="mission-card">
+                    <div class="mission-number">MISSION 5/5</div>
+                    <h2 style="color: #ff0080; margin: 20px 0;">🔐 CODE NAME: MONITOR</h2>
+                    
+                    <div class="console-instruction">
+                        <strong>📍 NAVIGATE TO:</strong> Amazon CloudWatch in AWS Console<br>
+                        <strong>🔍 YOUR TASK:</strong> Understand what it monitors
+                    </div>
+
+                    <p style="font-size: 1.2em; margin: 20px 0;">
+                        <strong style="color: #00ff41;">ENCRYPTED QUESTION:</strong>
+                    </p>
+
+                    <div class="cipher-box">
+                        IN AWS CONSOLE, GO TO CLOUDWATCH<br>
+                        LOOK AT THE LEFT SIDEBAR<br>
+                        FIND THE "ALARMS" SECTION<br>
+                        COUNT THE SUB-MENU ITEMS UNDER ALARMS
+                    </div>
+
+                    <div class="hint-box" onclick="revealHint(this)">
+                        <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
+                        <div class="hint-content">
+                            Go to CloudWatch → Look at left sidebar → Find "Alarms".<br>
+                            Expand it and count the sub-items (All alarms, In alarm, etc.).<br>
+                            Convert that number to a letter (19=S, etc.)
+                        </div>
+                    </div>
+
+                    <p style="margin: 20px 0;">
+                        <strong>🔓 CRACK THE CODE:</strong><br>
+                        Convert the number to a letter (1=A, 19=S, etc.)
+                    </p>
+
+                    <input type="text" class="code-input" id="code5" maxlength="1" placeholder="ENTER LETTER">
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-hack btn-back" onclick="prevStep()">← BACK</button>
+                        <button class="btn-hack" onclick="checkCode(5, 'S')">SUBMIT CODE →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Final Decode -->
+            <div class="step" data-step="7">
+                <div class="glitch">🎉 ALL CODES CRACKED! 🎉</div>
+
+                <div class="mission-card">
+                    <div class="mission-number">FINAL MISSION</div>
+                    <h2 style="color: #ff0080; margin: 20px 0;">🔓 DECODE THE SECRET MESSAGE</h2>
+                    
+                    <p style="font-size: 1.2em; margin: 20px 0; text-align: center;">
+                        You've collected all 5 secret letters!
+                    </p>
+
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div class="letter-box" id="letter1">?</div>
+                        <div class="letter-box" id="letter2">?</div>
+                        <div class="letter-box" id="letter3">?</div>
+                        <div class="letter-box" id="letter4">?</div>
+                        <div class="letter-box" id="letter5">?</div>
+                    </div>
+
+                    <div class="secret-message" id="secretMessage">
+                        ? ? ? ? ?
+                    </div>
+
+                    <div class="success">
+                        <strong>🎯 MISSION ACCOMPLISHED!</strong><br><br>
+                        You've collected all 5 letters!<br><br>
+                        <strong style="color: #ff0080; font-size: 1.5em;">C - L - O - U - D - S</strong><br><br>
+                        Wait... that's 6 letters but you only collected 5?<br>
+                        The hidden message is: <strong style="color: #00ff41; font-size: 2em;">"CLOUD"</strong><br><br>
+                        <em>(The 'S' at the end stands for Services!)</em>
+                    </div>
+
+                    <div class="console-instruction">
+                        <strong>📝 NOW GO TO MS FORMS AND SUBMIT:</strong><br>
+                        1. The 5 letters you found<br>
+                        2. The decoded secret word<br>
+                        3. What you learned about each AWS service<br>
+                        4. Screenshot of this completion screen
                     </div>
 
                     <div style="text-align: center; margin-top: 30px;">
-                        <button class="btn-investigate" onclick="location.reload()">SOLVE ANOTHER CASE 🔄</button>
+                        <button class="btn-hack" onclick="location.reload()">RESTART MISSION 🔄</button>
                     </div>
                 </div>
             </div>
@@ -606,68 +649,79 @@
     </div>
 
     <script>
-        let currentCase = 1;
-        const totalCases = 6;
+        let currentStep = 1;
+        const totalSteps = 7;
+        let collectedLetters = ['', '', '', '', ''];
+        let codescracked = 0;
 
         function updateProgress() {
-            const progress = ((currentCase - 1) / (totalCases - 1)) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = (codescracked / 5 * 100) + '%';
+            progressBar.textContent = `${codescracked}/5 CODES CRACKED`;
         }
 
-        function showCase(caseNum) {
-            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-            document.querySelector(`[data-step="${caseNum}"]`).classList.add('active');
-            updateProgress();
+        function showStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.querySelector(`[data-step="${step}"]`).classList.add('active');
             window.scrollTo(0, 0);
         }
 
-        function nextCase() {
-            if (currentCase < totalCases) {
-                currentCase++;
-                showCase(currentCase);
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
             }
         }
 
-        function prevCase() {
-            if (currentCase > 1) {
-                currentCase--;
-                showCase(currentCase);
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
             }
         }
 
-        function revealClue(element) {
+        function revealHint(element) {
             element.classList.add('revealed');
         }
 
-        function checkAnswer(element, isCorrect) {
-            const options = element.parentElement.querySelectorAll('.answer-option');
-            options.forEach(opt => {
-                opt.style.pointerEvents = 'none';
-            });
+        function checkCode(missionNum, correctLetter) {
+            const input = document.getElementById(`code${missionNum}`);
+            const userAnswer = input.value.toUpperCase().trim();
 
-            if (isCorrect) {
-                element.classList.add('correct');
-                element.innerHTML += ' ✅ CORRECT!';
-                setTimeout(() => {
-                    alert('🎯 Excellent deduction, Detective!');
-                }, 100);
+            if (userAnswer === correctLetter) {
+                collectedLetters[missionNum - 1] = correctLetter;
+                codescracked++;
+                updateProgress();
+                
+                alert(`✅ CORRECT! You found letter: ${correctLetter}\n\nCode ${missionNum}/5 cracked!`);
+                
+                if (missionNum === 5) {
+                    // Show all letters
+                    collectedLetters.forEach((letter, index) => {
+                        document.getElementById(`letter${index + 1}`).textContent = letter;
+                    });
+                    document.getElementById('secretMessage').textContent = collectedLetters.join(' ');
+                }
+                
+                nextStep();
             } else {
-                element.classList.add('wrong');
-                element.innerHTML += ' ❌ WRONG!';
-                setTimeout(() => {
-                    alert('❌ Not quite! Review the clues and try again!');
-                }, 100);
+                alert('❌ INCORRECT CODE!\n\nYou must explore the AWS Console to find the answer. This cannot be Googled - the clue is only visible in the actual AWS Console interface!');
             }
-        }
-
-        function makeAccusation(element, isCorrect) {
-            // Removed - students answer in Forms instead
         }
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextCase();
-            if (e.key === 'ArrowLeft') prevCase();
+            if (e.key === 'Enter') {
+                const activeInput = document.querySelector('.step.active input');
+                if (activeInput && activeInput.value) {
+                    const step = parseInt(document.querySelector('.step.active').dataset.step);
+                    if (step >= 2 && step <= 6) {
+                        const missionNum = step - 1;
+                        const correctLetters = ['C', 'L', 'O', 'D', 'S'];
+                        checkCode(missionNum, correctLetters[missionNum - 1]);
+                    }
+                }
+            }
         });
 
         // Initialize
