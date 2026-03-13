@@ -773,6 +773,10 @@
         const selectedSet = messageSets[Math.floor(Math.random() * messageSets.length)];
         const hiddenMessage = selectedSet.name;
         
+        // Log to verify randomization
+        console.log('🎲 RANDOMIZED MESSAGE:', hiddenMessage);
+        console.log('📊 Available messages:', messageSets.map(s => s.name).join(', '));
+        
         let selectedQuestions = {
             mission1: selectedSet.missions[0],
             mission2: selectedSet.missions[1],
@@ -845,21 +849,30 @@
         
         // Track tab visibility with AWS Console exception
         let lastSwitchTime = Date.now();
+        let isAlertShowing = false;
+        
+        // Override alert to prevent counting
+        const originalAlert = window.alert;
+        window.alert = function(message) {
+            isAlertShowing = true;
+            originalAlert(message);
+            setTimeout(() => { isAlertShowing = false; }, 100);
+        };
         
         document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
+            if (document.hidden && !isAlertShowing) {
                 lastSwitchTime = Date.now();
-            } else {
+            } else if (!document.hidden && !isAlertShowing) {
                 // When they come back, check how long they were gone
                 const timeAway = Date.now() - lastSwitchTime;
                 
                 // If gone for more than 3 seconds, likely checking AWS Console (acceptable)
                 // If gone for less than 3 seconds, likely just switching tabs quickly (suspicious)
-                if (timeAway < 3000) {
+                if (timeAway < 3000 && timeAway > 100) {
                     tabSwitches++;
                     suspiciousSwitches++;
                     console.log('⚠️ Quick tab switch detected! (Suspicious)');
-                } else {
+                } else if (timeAway >= 3000) {
                     tabSwitches++;
                     console.log('✅ Checking AWS Console (Acceptable - ' + Math.floor(timeAway/1000) + 's)');
                 }
@@ -867,16 +880,20 @@
         });
         
         window.addEventListener('blur', function() {
-            lastSwitchTime = Date.now();
+            if (!isAlertShowing) {
+                lastSwitchTime = Date.now();
+            }
         });
         
         window.addEventListener('focus', function() {
-            const timeAway = Date.now() - lastSwitchTime;
-            if (timeAway < 3000) {
-                tabSwitches++;
-                suspiciousSwitches++;
-            } else {
-                tabSwitches++;
+            if (!isAlertShowing) {
+                const timeAway = Date.now() - lastSwitchTime;
+                if (timeAway < 3000 && timeAway > 100) {
+                    tabSwitches++;
+                    suspiciousSwitches++;
+                } else if (timeAway >= 3000) {
+                    tabSwitches++;
+                }
             }
         });
         
@@ -906,14 +923,53 @@
             return Math.max(score, 0);
         }
         
-        // Get performance rating
-        function getPerformanceRating(score) {
-            if (score >= 95) return { rating: 'LEGENDARY', emoji: '🏆', color: '#FFD700' };
-            if (score >= 85) return { rating: 'EXCELLENT', emoji: '⭐', color: '#00ff41' };
-            if (score >= 75) return { rating: 'GREAT', emoji: '🎯', color: '#00cc33' };
-            if (score >= 65) return { rating: 'GOOD', emoji: '👍', color: '#ffbd2e' };
-            if (score >= 50) return { rating: 'FAIR', emoji: '📊', color: '#ff9900' };
-            return { rating: 'NEEDS IMPROVEMENT', emoji: '📈', color: '#ff5f56' };
+        // Get performance rating with red flags
+        function getPerformanceRating(score, totalTime, suspiciousSwitches) {
+            let redFlags = [];
+            
+            // Red flag: Too fast (impossible to check AWS Console properly)
+            if (totalTime < 120) {
+                redFlags.push('⚠️ COMPLETED TOO FAST - Possible cheating');
+            }
+            
+            // Red flag: Too many suspicious switches
+            if (suspiciousSwitches > 5) {
+                redFlags.push('⚠️ TOO MANY SUSPICIOUS TAB SWITCHES - Likely Googling');
+            }
+            
+            // Red flag: Perfect score but used hints
+            if (score === 100 && hintsUsed > 0) {
+                redFlags.push('⚠️ SUSPICIOUS - Perfect score but used hints');
+            }
+            
+            let rating, emoji, color;
+            if (score >= 95) {
+                rating = 'LEGENDARY';
+                emoji = '🏆';
+                color = '#FFD700';
+            } else if (score >= 85) {
+                rating = 'EXCELLENT';
+                emoji = '⭐';
+                color = '#00ff41';
+            } else if (score >= 75) {
+                rating = 'GREAT';
+                emoji = '🎯';
+                color = '#00cc33';
+            } else if (score >= 65) {
+                rating = 'GOOD';
+                emoji = '👍';
+                color = '#ffbd2e';
+            } else if (score >= 50) {
+                rating = 'FAIR';
+                emoji = '📊';
+                color = '#ff9900';
+            } else {
+                rating = 'NEEDS IMPROVEMENT';
+                emoji = '📈';
+                color = '#ff5f56';
+            }
+            
+            return { rating, emoji, color, redFlags };
         }
 
         function updateProgress() {
@@ -986,7 +1042,7 @@
                     
                     const totalTime = Math.floor((Date.now() - startTime) / 1000);
                     const finalScore = calculateScore(totalTime, wrongAttempts, hintsUsed, suspiciousSwitches);
-                    const performance = getPerformanceRating(finalScore);
+                    const performance = getPerformanceRating(finalScore, totalTime, suspiciousSwitches);
                     
                     // Auto-submit stats to your endpoint
                     submitStats({
@@ -995,6 +1051,7 @@
                         hiddenMessage: hiddenMessage,
                         score: finalScore,
                         performance: performance.rating,
+                        redFlags: performance.redFlags,
                         totalTime: totalTime,
                         tabSwitches: tabSwitches,
                         suspiciousSwitches: suspiciousSwitches,
@@ -1050,6 +1107,15 @@
                                     🔤 <strong>Hidden Message:</strong> <span style="color: #ff0080; font-size: 1.2em;">${hiddenMessage}</span>
                                 </div>
                             </div>
+                            
+                            ${performance.redFlags.length > 0 ? `
+                            <div style="background: rgba(255,0,0,0.2); border: 2px solid #ff0000; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <strong style="color: #ff0000; font-size: 1.2em;">🚨 RED FLAGS DETECTED:</strong><br><br>
+                                ${performance.redFlags.map(flag => `<div style="margin: 5px 0; color: #ff0000;">${flag}</div>`).join('')}
+                                <br>
+                                <small style="color: #ff9900;">⚠️ Teacher will review your submission</small>
+                            </div>
+                            ` : ''}
                             
                             <div style="font-size: 1.2em; color: #00ff41; margin: 15px 0; letter-spacing: 3px;">
                                 CODE: ${studentCode}
