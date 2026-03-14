@@ -304,21 +304,142 @@
             color: #ff0000;
         }
 
-        @media (max-width: 768px) {
-            .glitch {
-                font-size: 2em;
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+            border: 3px solid #00ff41;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.5);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
             }
-            
-            .cipher-box {
-                font-size: 1em;
-                letter-spacing: 1px;
+            to {
+                transform: translateY(0);
+                opacity: 1;
             }
-            
-            .letter-box {
-                font-size: 1.2em;
-                min-width: 40px;
-                padding: 8px 10px;
-            }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .modal-title {
+            font-size: 2em;
+            color: #00ff41;
+            margin-bottom: 10px;
+            font-family: 'Special Elite', cursive;
+        }
+
+        .modal-subtitle {
+            font-size: 1.2em;
+            color: #ff0080;
+        }
+
+        .service-image {
+            width: 100%;
+            max-width: 300px;
+            height: 150px;
+            margin: 20px auto;
+            display: block;
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .modal-section {
+            background: rgba(0, 255, 65, 0.05);
+            border-left: 4px solid #00ff41;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .modal-section h3 {
+            color: #ff0080;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .modal-section p {
+            line-height: 1.8;
+            color: #d4c5a9;
+        }
+
+        .modal-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal-features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .modal-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .modal-close {
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            color: #0a0e27;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
         }
     </style>
 </head>
@@ -406,9 +527,7 @@
                     <div class="hint-box" onclick="revealHint(this)">
                         <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
                         <div class="hint-content">
-                            Go to AWS Console → S3 → Look at the LEFT sidebar.<br>
-                            Count all the menu items from top to bottom.<br>
-                            The number you get = position in alphabet (1=A, 2=B, 3=C...)
+                            <!-- Hint will be dynamically loaded -->
                         </div>
                     </div>
 
@@ -452,9 +571,7 @@
                     <div class="hint-box" onclick="revealHint(this)">
                         <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
                         <div class="hint-content">
-                            Go to EC2 Dashboard → Look at the "Resources" section at the top.<br>
-                            Count all the resource boxes displayed.<br>
-                            Convert that number to a letter (1=A, 2=B, 12=L, etc.)
+                            <!-- Hint will be dynamically loaded -->
                         </div>
                     </div>
 
@@ -497,9 +614,7 @@
                     <div class="hint-box" onclick="revealHint(this)">
                         <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
                         <div class="hint-content">
-                            Go to RDS → Click "Create database" → Look at "Engine options".<br>
-                            Count all the database engines available.<br>
-                            Convert that number to a letter.
+                            <!-- Hint will be dynamically loaded -->
                         </div>
                     </div>
 
@@ -542,9 +657,7 @@
                     <div class="hint-box" onclick="revealHint(this)">
                         <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
                         <div class="hint-content">
-                            Go to Lambda → Click "Create function" → Click Runtime dropdown.<br>
-                            Count only the Python versions (Python 3.x).<br>
-                            Convert that number to a letter (4=D, 21=U, etc.)
+                            <!-- Hint will be dynamically loaded -->
                         </div>
                     </div>
 
@@ -587,9 +700,7 @@
                     <div class="hint-box" onclick="revealHint(this)">
                         <strong style="color: #ff0080;">💡 NEED A HINT? Click here</strong>
                         <div class="hint-content">
-                            Go to CloudWatch → Look at left sidebar → Find "Alarms".<br>
-                            Expand it and count the sub-items (All alarms, In alarm, etc.).<br>
-                            Convert that number to a letter (19=S, etc.)
+                            <!-- Hint will be dynamically loaded -->
                         </div>
                     </div>
 
@@ -640,9 +751,11 @@
                         </p>
 
                         <div style="margin: 30px 0;">
-                            <img src="https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif" 
-                                 alt="Rickroll" 
-                                 style="max-width: 100%; border-radius: 10px; border: 3px solid #ff0080;">
+                            <iframe width="100%" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&start=0" 
+                                title="Congratulations!" frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen style="border-radius: 10px; border: 3px solid #ff0080; max-width: 560px;">
+                            </iframe>
                         </div>
 
                         <div style="font-size: 1.5em; margin: 20px 0; color: #ff0080;">
@@ -671,7 +784,7 @@
                     </div>
 
                     <div style="text-align: center; margin-top: 30px;">
-                        <button class="btn-hack" onclick="location.reload()">RESTART MISSION 🔄</button>
+                        <button class="btn-hack" onclick="window.close()">CLOSE WINDOW</button>
                     </div>
                 </div>
             </div>
@@ -695,76 +808,166 @@
         let wrongAttempts = 0;
         let hintsUsed = 0;
         
-        // Question variants - 7 different sets with different hidden messages
+        // HINTS GUIDE ONLY - NO SPOILERS!
         const messageSets = [
             {
-                name: "CLOUD",
+                name: "HEART",
                 missions: [
-                    { service: "S3", question: "Count menu items in S3 left sidebar", answer: 'C', number: 3 },
-                    { service: "EC2", question: "Count resource boxes in EC2 dashboard", answer: 'L', number: 12 },
-                    { service: "RDS", question: "Count database engine options", answer: 'O', number: 15 },
-                    { service: "Lambda", question: "Count letters in 'Lambda' word", answer: 'U', number: 21 },
-                    { service: "CloudWatch", question: "Count letters in 'CloudWatch' word", answer: 'D', number: 4 }
+                    { service: "RDS", question: "In RDS, click 'Create database' and count the database engine options", answer: 'H', number: 8, hint: "AWS Console → Search 'RDS' → Click 'Create database' → Count the engine logos shown (MySQL, PostgreSQL, etc.)" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python runtime versions only", answer: 'E', number: 5, hint: "AWS Console → Search 'Lambda' → Create function → Runtime dropdown → Count only the Python versions" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'? (1st, 2nd, or 3rd?)", answer: 'A', number: 1, hint: "AWS Console → Search 'S3' → Look at left sidebar → 'Buckets' is the ___th item from top" },
+                    { service: "VPC", question: "In VPC dashboard, count the resource boxes shown", answer: 'R', number: 18, hint: "AWS Console → Search 'VPC' → Look at the dashboard → Count all the resource boxes displayed" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Search 'Lambda' → Create function → Runtime dropdown → Count ALL options listed" }
                 ]
             },
             {
-                name: "POWER",
+                name: "TEACH",
                 missions: [
-                    { service: "S3", question: "Count letters in 'Storage' word", answer: 'P', number: 16 },
-                    { service: "EC2", question: "Count letters in 'Compute' word", answer: 'O', number: 15 },
-                    { service: "RDS", question: "Count tabs in RDS 'Create database' page", answer: 'W', number: 23 },
-                    { service: "Lambda", question: "Count letters in 'Function' word", answer: 'E', number: 5 },
-                    { service: "CloudWatch", question: "Count Alarms sub-menu items", answer: 'R', number: 18 }
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Search 'Lambda' → Create function → Runtime dropdown → Count every single option" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Python versions only" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position number is 'Buckets'?" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Node.js runtime versions only", answer: 'C', number: 3, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count only the Node.js versions" },
+                    { service: "RDS", question: "In RDS, click 'Create database' and count the database engine options", answer: 'H', number: 8, hint: "AWS Console → Search 'RDS' → Click 'Create database' → Count the engine logos shown" }
                 ]
             },
             {
-                name: "SCALE",
+                name: "TABLE",
                 missions: [
-                    { service: "S3", question: "Count Alarms sub-items in CloudWatch", answer: 'S', number: 19 },
-                    { service: "EC2", question: "Count letters in 'Instance' word", answer: 'C', number: 3 },
-                    { service: "RDS", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
-                    { service: "Lambda", question: "Count resource boxes in EC2", answer: 'L', number: 12 },
-                    { service: "CloudWatch", question: "Count Python versions in Lambda", answer: 'E', number: 5 }
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count every single option" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets' from the top?" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Access Points'?", answer: 'B', number: 2, hint: "AWS Console → S3 → Left sidebar → What position number is 'Access Points'?" },
+                    { service: "EC2", question: "In EC2 dashboard, count the resource boxes shown", answer: 'L', number: 12, hint: "AWS Console → Search 'EC2' → Dashboard → Count all the resource boxes displayed" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime → Count Python versions" }
                 ]
             },
             {
-                name: "SMART",
+                name: "BLADE",
                 missions: [
-                    { service: "S3", question: "Count Alarms sub-items in CloudWatch", answer: 'S', number: 19 },
-                    { service: "EC2", question: "Count letters in 'Monitoring' word", answer: 'M', number: 13 },
-                    { service: "RDS", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
-                    { service: "Lambda", question: "Count Alarms sub-menu items", answer: 'R', number: 18 },
-                    { service: "CloudWatch", question: "Count letters in 'Metrics' word", answer: 'T', number: 20 }
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Access Points'?", answer: 'B', number: 2, hint: "AWS Console → S3 → Left sidebar → What position number is 'Access Points'?" },
+                    { service: "EC2", question: "In EC2 dashboard, count the resource boxes shown", answer: 'L', number: 12, hint: "AWS Console → EC2 → Dashboard → Count all resource boxes" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Java runtime versions only", answer: 'D', number: 4, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count only the Java versions" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime → Count Python versions" }
                 ]
             },
             {
-                name: "AGILE",
+                name: "CREAM",
                 missions: [
-                    { service: "S3", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
-                    { service: "EC2", question: "Count letters in 'Buckets' word", answer: 'G', number: 7 },
-                    { service: "RDS", question: "Count letters in 'Instance' word", answer: 'I', number: 9 },
-                    { service: "Lambda", question: "Count resource boxes in EC2", answer: 'L', number: 12 },
-                    { service: "CloudWatch", question: "Count Python versions in Lambda", answer: 'E', number: 5 }
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Node.js versions only", answer: 'C', number: 3, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Node.js versions only" },
+                    { service: "VPC", question: "In VPC dashboard, count the resource boxes shown", answer: 'R', number: 18, hint: "AWS Console → Search 'VPC' → Dashboard → Count all resource boxes" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime → Count Python versions" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "IAM", question: "In IAM left sidebar, count the menu items", answer: 'M', number: 13, hint: "AWS Console → Search 'IAM' → Look at left sidebar → Count all menu items listed" }
                 ]
             },
             {
-                name: "SPEED",
+                name: "MEDAL",
                 missions: [
-                    { service: "S3", question: "Count Alarms sub-items in CloudWatch", answer: 'S', number: 19 },
-                    { service: "EC2", question: "Count letters in 'Compute' word", answer: 'P', number: 16 },
-                    { service: "RDS", question: "Count Python versions in Lambda", answer: 'E', number: 5 },
-                    { service: "Lambda", question: "Count Python versions in Lambda", answer: 'E', number: 5 },
-                    { service: "CloudWatch", question: "Count letters in 'Lambda' word", answer: 'D', number: 4 }
+                    { service: "IAM", question: "In IAM left sidebar, count the menu items", answer: 'M', number: 13, hint: "AWS Console → Search 'IAM' → Left sidebar → Count all menu items" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime → Count Python versions" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Java versions only", answer: 'D', number: 4, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Java versions only" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "EC2", question: "In EC2 dashboard, count the resource boxes shown", answer: 'L', number: 12, hint: "AWS Console → EC2 → Dashboard → Count all resource boxes" }
                 ]
             },
             {
-                name: "BRAVE",
+                name: "DREAM",
                 missions: [
-                    { service: "S3", question: "Count letters in 'Buckets' word", answer: 'B', number: 2 },
-                    { service: "EC2", question: "Count Alarms sub-menu items", answer: 'R', number: 18 },
-                    { service: "RDS", question: "Count letters in 'Database' word", answer: 'A', number: 1 },
-                    { service: "Lambda", question: "Count letters in 'Volumes' word", answer: 'V', number: 22 },
-                    { service: "CloudWatch", question: "Count Python versions in Lambda", answer: 'E', number: 5 }
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Java versions only", answer: 'D', number: 4, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Java versions only" },
+                    { service: "VPC", question: "In VPC dashboard, count the resource boxes shown", answer: 'R', number: 18, hint: "AWS Console → Search 'VPC' → Dashboard → Count all resource boxes" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime → Count Python versions" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "IAM", question: "In IAM left sidebar, count the menu items", answer: 'M', number: 13, hint: "AWS Console → Search 'IAM' → Left sidebar → Count all menu items" }
+                ]
+            },
+            {
+                name: "FLAME",
+                missions: [
+                    { service: "EC2", question: "In EC2 left sidebar, count the main sections (Instances, Images, EBS, etc.)", answer: 'F', number: 6, hint: "AWS Console → Search 'EC2' → Left sidebar → Count the bold section headers" },
+                    { service: "EC2", question: "In EC2 dashboard, count the resource boxes shown", answer: 'L', number: 12, hint: "AWS Console → EC2 → Dashboard → Count all the resource boxes displayed" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets' from the top?" },
+                    { service: "IAM", question: "In IAM left sidebar, count the menu items", answer: 'M', number: 13, hint: "AWS Console → Search 'IAM' → Left sidebar → Count all menu items listed" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Python versions only" }
+                ]
+            },
+            {
+                name: "CLIMB",
+                missions: [
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Node.js versions only", answer: 'C', number: 3, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Node.js versions only" },
+                    { service: "EC2", question: "In EC2 dashboard, count the resource boxes shown", answer: 'L', number: 12, hint: "AWS Console → EC2 → Dashboard → Count all resource boxes" },
+                    { service: "Lambda", question: "In Lambda left sidebar, count the menu items", answer: 'I', number: 9, hint: "AWS Console → Lambda → Left sidebar → Count all menu items" },
+                    { service: "IAM", question: "In IAM left sidebar, count the menu items", answer: 'M', number: 13, hint: "AWS Console → Search 'IAM' → Left sidebar → Count all menu items" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Access Points'?", answer: 'B', number: 2, hint: "AWS Console → S3 → Left sidebar → What position number is 'Access Points'?" }
+                ]
+            },
+            {
+                name: "CRAFT",
+                missions: [
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Node.js versions only", answer: 'C', number: 3, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Node.js versions only" },
+                    { service: "VPC", question: "In VPC dashboard, count the resource boxes shown", answer: 'R', number: 18, hint: "AWS Console → Search 'VPC' → Dashboard → Count all resource boxes" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "EC2", question: "In EC2 left sidebar, count the main sections", answer: 'F', number: 6, hint: "AWS Console → EC2 → Left sidebar → Count the bold section headers" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count ALL options" }
+                ]
+            },
+            {
+                name: "DRIFT",
+                missions: [
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Java versions only", answer: 'D', number: 4, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Java versions only" },
+                    { service: "RDS", question: "In RDS left sidebar, count the menu items", answer: 'R', number: 18, hint: "AWS Console → Search 'RDS' → Left sidebar → Count all menu items" },
+                    { service: "Lambda", question: "In Lambda left sidebar, count the menu items", answer: 'I', number: 9, hint: "AWS Console → Lambda → Left sidebar → Count all menu items" },
+                    { service: "EC2", question: "In EC2 left sidebar, count the main sections", answer: 'F', number: 6, hint: "AWS Console → EC2 → Left sidebar → Count the bold section headers" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count ALL options" }
+                ]
+            },
+            {
+                name: "THIEF",
+                missions: [
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count every single option" },
+                    { service: "RDS", question: "In RDS, click 'Create database' and count engine options", answer: 'H', number: 8, hint: "AWS Console → RDS → Click 'Create database' → Count the engine logos shown" },
+                    { service: "Lambda", question: "In Lambda left sidebar, count the menu items", answer: 'I', number: 9, hint: "AWS Console → Lambda → Left sidebar → Count all menu items" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime → Count Python versions" },
+                    { service: "EC2", question: "In EC2 left sidebar, count the main sections", answer: 'F', number: 6, hint: "AWS Console → EC2 → Left sidebar → Count the bold section headers" }
+                ]
+            },
+            {
+                name: "BIRTH",
+                missions: [
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Access Points'?", answer: 'B', number: 2, hint: "AWS Console → S3 → Left sidebar → What position number is 'Access Points'?" },
+                    { service: "Lambda", question: "In Lambda left sidebar, count the menu items", answer: 'I', number: 9, hint: "AWS Console → Lambda → Left sidebar → Count all menu items" },
+                    { service: "VPC", question: "In VPC dashboard, count the resource boxes shown", answer: 'R', number: 18, hint: "AWS Console → Search 'VPC' → Dashboard → Count all resource boxes" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count ALL options" },
+                    { service: "RDS", question: "In RDS, click 'Create database' and count engine options", answer: 'H', number: 8, hint: "AWS Console → RDS → Click 'Create database' → Count the engine logos" }
+                ]
+            },
+            {
+                name: "EARTH",
+                missions: [
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Python versions only", answer: 'E', number: 5, hint: "AWS Console → Lambda → Create function → Runtime → Count Python versions" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "RDS", question: "In RDS left sidebar, count the menu items", answer: 'R', number: 18, hint: "AWS Console → Search 'RDS' → Left sidebar → Count all menu items" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count ALL options" },
+                    { service: "RDS", question: "In RDS, click 'Create database' and count engine options", answer: 'H', number: 8, hint: "AWS Console → RDS → Click 'Create database' → Count the engine logos" }
+                ]
+            },
+            {
+                name: "FAITH",
+                missions: [
+                    { service: "EC2", question: "In EC2 left sidebar, count the main sections", answer: 'F', number: 6, hint: "AWS Console → EC2 → Left sidebar → Count the bold section headers" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "Lambda", question: "In Lambda left sidebar, count the menu items", answer: 'I', number: 9, hint: "AWS Console → Lambda → Left sidebar → Count all menu items" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count ALL options" },
+                    { service: "RDS", question: "In RDS, click 'Create database' and count engine options", answer: 'H', number: 8, hint: "AWS Console → RDS → Click 'Create database' → Count the engine logos" }
+                ]
+            },
+            {
+                name: "MATCH",
+                missions: [
+                    { service: "IAM", question: "In IAM left sidebar, count the menu items", answer: 'M', number: 13, hint: "AWS Console → Search 'IAM' → Left sidebar → Count all menu items" },
+                    { service: "S3", question: "In S3 left sidebar, what position is 'Buckets'?", answer: 'A', number: 1, hint: "AWS Console → S3 → Left sidebar → What position is 'Buckets'?" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count ALL runtime options", answer: 'T', number: 20, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count ALL options" },
+                    { service: "Lambda", question: "In Lambda, click 'Create function' and count Node.js versions only", answer: 'C', number: 3, hint: "AWS Console → Lambda → Create function → Runtime dropdown → Count Node.js versions only" },
+                    { service: "RDS", question: "In RDS, click 'Create database' and count engine options", answer: 'H', number: 8, hint: "AWS Console → RDS → Click 'Create database' → Count the engine logos" }
                 ]
             }
         ];
@@ -772,6 +975,46 @@
         // Randomly select a message set for this student
         const selectedSet = messageSets[Math.floor(Math.random() * messageSets.length)];
         const hiddenMessage = selectedSet.name;
+        
+        // Service educational content
+        const serviceInfo = {
+            'S3': {
+                name: 'Amazon S3 (Simple Storage Service)',
+                description: 'S3 is like a giant hard drive in the cloud. You can store unlimited files - photos, videos, backups, anything!',
+                realWorld: 'Netflix stores all their movies and shows in S3. Spotify stores millions of songs in S3.',
+                keyFeatures: ['Unlimited storage', 'Pay only for what you use', '99.999999999% durability', 'Access from anywhere']
+            },
+            'EC2': {
+                name: 'Amazon EC2 (Elastic Compute Cloud)',
+                description: 'EC2 is like renting a computer in the cloud. You can run your applications 24/7 without buying physical servers.',
+                realWorld: 'Airbnb runs their website on thousands of EC2 instances. Reddit uses EC2 to handle millions of users.',
+                keyFeatures: ['Virtual servers', 'Scale up or down instantly', 'Pay per hour', 'Choose your OS (Windows/Linux)']
+            },
+            'RDS': {
+                name: 'Amazon RDS (Relational Database Service)',
+                description: 'RDS manages your databases for you. No need to worry about backups, updates, or maintenance - AWS does it all!',
+                realWorld: 'Expedia uses RDS to store millions of hotel bookings. Samsung uses RDS for their mobile apps.',
+                keyFeatures: ['Automatic backups', 'Automatic updates', 'Supports MySQL, PostgreSQL, etc.', 'Easy to scale']
+            },
+            'Lambda': {
+                name: 'AWS Lambda',
+                description: 'Lambda runs your code without servers! You just upload code, and AWS runs it when needed. Pay only when it runs.',
+                realWorld: 'Coca-Cola uses Lambda to process vending machine data. iRobot uses Lambda for their robot vacuums.',
+                keyFeatures: ['No servers to manage', 'Pay per execution', 'Auto-scales', 'Supports Python, Node.js, Java, etc.']
+            },
+            'IAM': {
+                name: 'AWS IAM (Identity and Access Management)',
+                description: 'IAM controls WHO can access WHAT in your AWS account. It\'s like the security guard of your cloud!',
+                realWorld: 'Every company using AWS uses IAM. It ensures only authorized people can access sensitive resources.',
+                keyFeatures: ['Create users and groups', 'Set permissions', 'Multi-factor authentication', 'Free to use']
+            },
+            'VPC': {
+                name: 'Amazon VPC (Virtual Private Cloud)',
+                description: 'VPC is your own private network in the cloud. It\'s like having your own isolated section of AWS that only you control.',
+                realWorld: 'Banks use VPCs to keep their financial data isolated and secure. Every EC2 instance runs inside a VPC.',
+                keyFeatures: ['Private network in cloud', 'Control IP addresses', 'Security groups & firewalls', 'Connect to on-premises']
+            }
+        };
         
         // Log to verify randomization
         console.log('🎲 RANDOMIZED MESSAGE:', hiddenMessage);
@@ -790,7 +1033,7 @@
             return 'STU-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         }
         
-        // Start mission with name
+        // Start mission with name and wheel spin
         function startMission() {
             const nameInput = document.getElementById('studentName');
             studentName = nameInput.value.trim();
@@ -800,8 +1043,110 @@
                 return;
             }
             
-            // Personalize the experience
-            alert(`Welcome, Agent ${studentName}! 🕵️\n\nYour unique mission code: ${studentCode}\n\nGood luck!`);
+            // Show spinning wheel animation
+            showSpinningWheel();
+        }
+        
+        // Spinning wheel to select message set
+        function showSpinningWheel() {
+            const wheelOverlay = document.createElement('div');
+            wheelOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            `;
+            
+            wheelOverlay.innerHTML = `
+                <div style="text-align: center;">
+                    <h2 style="color: #00ff41; font-size: 2.5em; margin-bottom: 30px; font-family: 'Share Tech Mono', monospace; letter-spacing: 5px; text-shadow: 0 0 20px rgba(0, 255, 65, 0.8);">
+                        SPINNING THE WHEEL OF FATE...
+                    </h2>
+                    <div style="font-size: 10em; animation: spin 2s linear infinite;" id="wheelIcon">🎯</div>
+                    <p style="color: #ff0080; font-size: 1.5em; margin-top: 30px; font-family: 'Share Tech Mono', monospace; letter-spacing: 3px;">
+                        Determining your mission...
+                    </p>
+                </div>
+            `;
+            
+            // Add spin animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(wheelOverlay);
+            
+            // Spin for 3 seconds then reveal
+            setTimeout(() => {
+                // Stop spinning and show result
+                const wheelIcon = document.getElementById('wheelIcon');
+                wheelIcon.style.animation = 'none';
+                
+                // Show selected message (but don't reveal the actual word yet!)
+                wheelOverlay.innerHTML = `
+                    <div style="text-align: center; animation: fadeIn 0.5s;">
+                        <div style="font-size: 8em; margin-bottom: 20px;">🎯</div>
+                        <h2 style="color: #00ff41; font-size: 3.5em; margin-bottom: 30px; font-family: 'Share Tech Mono', monospace; letter-spacing: 5px; text-shadow: 0 0 20px rgba(0, 255, 65, 0.8);">
+                            MISSION ASSIGNED
+                        </h2>
+                        <div style="background: rgba(0, 255, 65, 0.1); border: 2px solid #00ff41; padding: 30px; border-radius: 15px; margin: 30px auto; max-width: 500px;">
+                            <p style="color: #ff0080; font-size: 1.5em; margin-bottom: 15px; font-family: 'Share Tech Mono', monospace;">
+                                AGENT: <span style="color: #00ff41; font-weight: bold;">${studentName.toUpperCase()}</span>
+                            </p>
+                            <p style="color: #ff0080; font-size: 1.2em; font-family: 'Share Tech Mono', monospace;">
+                                CODE: <span style="color: #00ff41; letter-spacing: 3px;">${studentCode}</span>
+                            </p>
+                            <div style="margin-top: 25px; padding: 20px; background: rgba(255, 0, 128, 0.1); border: 2px dashed #ff0080; border-radius: 10px;">
+                                <p style="color: #d4c5a9; font-size: 1.1em; line-height: 1.8;">
+                                    Your mission: Crack 5 codes by exploring AWS Console.<br>
+                                    Each code reveals a secret letter.<br>
+                                    Collect all 5 letters to decode the hidden message!
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="startActualMission()" style="
+                            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+                            color: #0a0e27;
+                            border: none;
+                            padding: 20px 60px;
+                            font-size: 1.5em;
+                            font-weight: bold;
+                            border-radius: 10px;
+                            cursor: pointer;
+                            margin-top: 30px;
+                            font-family: 'Share Tech Mono', monospace;
+                            letter-spacing: 2px;
+                            text-transform: uppercase;
+                            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+                            transition: all 0.3s;
+                        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            ▶ BEGIN MISSION
+                        </button>
+                    </div>
+                `;
+            }, 3000);
+        }
+        
+        // Actually start the mission
+        function startActualMission() {
+            // Remove wheel overlay
+            document.querySelectorAll('div').forEach(div => {
+                if (div.style.position === 'fixed' && div.style.zIndex === '10000') {
+                    div.remove();
+                }
+            });
             
             // Update mission cards with selected questions
             updateMissionQuestions();
@@ -813,38 +1158,53 @@
         function updateMissionQuestions() {
             // Mission 1
             document.querySelector('[data-step="2"] .cipher-box').innerHTML = `
-                IN AWS CONSOLE, GO TO S3 DASHBOARD<br>
+                IN AWS CONSOLE, GO TO ${selectedQuestions.mission1.service} DASHBOARD<br>
                 ${selectedQuestions.mission1.question.toUpperCase()}<br>
-                CONVERT THE NUMBER TO A LETTER (1=A, 2=B, etc.)
+                <br>
+                <strong style="color: #ff0080;">CONVERT YOUR ANSWER TO A LETTER:</strong><br>
+                1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G, 8=H, 9=I, 10=J, 11=K, 12=L, 13=M, 14=N, 15=O, etc.
             `;
+            document.querySelector('[data-step="2"] .hint-content').innerHTML = selectedQuestions.mission1.hint;
             
             // Mission 2
             document.querySelector('[data-step="3"] .cipher-box').innerHTML = `
-                IN AWS CONSOLE, GO TO EC2 DASHBOARD<br>
+                IN AWS CONSOLE, GO TO ${selectedQuestions.mission2.service} DASHBOARD<br>
                 ${selectedQuestions.mission2.question.toUpperCase()}<br>
-                CONVERT THE NUMBER TO A LETTER
+                <br>
+                <strong style="color: #ff0080;">CONVERT YOUR ANSWER TO A LETTER:</strong><br>
+                1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G, 8=H, 9=I, 10=J, 11=K, 12=L, 13=M, 14=N, 15=O, etc.
             `;
+            document.querySelector('[data-step="3"] .hint-content').innerHTML = selectedQuestions.mission2.hint;
             
             // Mission 3
             document.querySelector('[data-step="4"] .cipher-box').innerHTML = `
-                IN AWS CONSOLE, GO TO RDS<br>
+                IN AWS CONSOLE, GO TO ${selectedQuestions.mission3.service}<br>
                 ${selectedQuestions.mission3.question.toUpperCase()}<br>
-                CONVERT THE NUMBER TO A LETTER
+                <br>
+                <strong style="color: #ff0080;">CONVERT YOUR ANSWER TO A LETTER:</strong><br>
+                1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G, 8=H, 9=I, 10=J, 11=K, 12=L, 13=M, 14=N, 15=O, etc.
             `;
+            document.querySelector('[data-step="4"] .hint-content').innerHTML = selectedQuestions.mission3.hint;
             
             // Mission 4
             document.querySelector('[data-step="5"] .cipher-box').innerHTML = `
-                IN AWS CONSOLE, GO TO LAMBDA<br>
+                IN AWS CONSOLE, GO TO ${selectedQuestions.mission4.service}<br>
                 ${selectedQuestions.mission4.question.toUpperCase()}<br>
-                CONVERT THE NUMBER TO A LETTER
+                <br>
+                <strong style="color: #ff0080;">CONVERT YOUR ANSWER TO A LETTER:</strong><br>
+                1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G, 8=H, 9=I, 10=J, 11=K, 12=L, 13=M, 14=N, 15=O, etc.
             `;
+            document.querySelector('[data-step="5"] .hint-content').innerHTML = selectedQuestions.mission4.hint;
             
             // Mission 5
             document.querySelector('[data-step="6"] .cipher-box').innerHTML = `
-                IN AWS CONSOLE, GO TO CLOUDWATCH<br>
+                IN AWS CONSOLE, GO TO ${selectedQuestions.mission5.service}<br>
                 ${selectedQuestions.mission5.question.toUpperCase()}<br>
-                CONVERT THE NUMBER TO A LETTER
+                <br>
+                <strong style="color: #ff0080;">CONVERT YOUR ANSWER TO A LETTER:</strong><br>
+                1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G, 8=H, 9=I, 10=J, 11=K, 12=L, 13=M, 14=N, 15=O, etc.
             `;
+            document.querySelector('[data-step="6"] .hint-content').innerHTML = selectedQuestions.mission5.hint;
         }
         
         // Track tab visibility with AWS Console exception
@@ -1032,7 +1392,21 @@
                 codescracked++;
                 updateProgress();
                 
-                alert(`✅ CORRECT, Agent ${studentName}!\n\nYou found letter: ${correctAnswer}\n\nCode ${missionNum}/5 cracked!\nTime: ${timeTaken}s`);
+                // Show educational content
+                const service = selectedQuestions[missionKey].service;
+                const info = serviceInfo[service];
+                
+                const educationalAlert = `✅ CORRECT, Agent ${studentName}!\n\nYou found letter: ${correctAnswer}\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+                    `📚 WHAT YOU JUST LEARNED:\n\n` +
+                    `${info.name}\n\n` +
+                    `${info.description}\n\n` +
+                    `🌍 REAL WORLD:\n${info.realWorld}\n\n` +
+                    `✨ KEY FEATURES:\n${info.keyFeatures.map((f, i) => `${i+1}. ${f}`).join('\n')}\n` +
+                    `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `Code ${missionNum}/5 cracked! Time: ${timeTaken}s`;
+                
+                alert(educationalAlert);
                 
                 if (missionNum === 5) {
                     collectedLetters.forEach((letter, index) => {
